@@ -62,7 +62,7 @@ button,input,textarea{font:inherit;color:inherit}
 .warn span{font-weight:500}
 
 /* Occurrence */
-.occ{background:var(--surface);border:1px solid var(--line);padding:14px;display:grid;grid-template-columns:2fr 1.5fr 150px 120px 130px 120px;gap:12px}
+.occ{background:var(--surface);border:1px solid var(--line);padding:14px;display:grid;grid-template-columns:2fr 1.5fr 150px 130px 120px;gap:12px}
 .fld label{display:block;font-size:12.5px;color:var(--muted);margin-bottom:3px;font-weight:500}
 .fld input,.fld textarea{width:100%;background:var(--field);border:1px solid var(--line);border-radius:4px;padding:8px 10px;min-height:40px}
 .fld textarea{min-height:70px;resize:vertical}
@@ -241,7 +241,6 @@ tr.st-out{color:var(--muted)}
     <div class="fld"><label for="oCos">Comandante das Operações</label><input id="oCos" data-o="cos" placeholder="Nome do COS"></div>
     <div class="fld"><label for="oDat">Data</label><input id="oDat" type="date" data-o="data"></div>
     <div class="fld"><label for="oInt">Tempo previsto (min)</label><input id="oInt" type="number" min="5" max="120" step="1" inputmode="numeric" data-o="intervalo"></div>
-    <div class="fld"><label for="oCon">Consumo médio (bar/min)</label><input id="oCon" type="number" min="1" max="30" step="0.5" inputmode="decimal" data-o="consumo"></div>
     <div class="fld"><label for="oAla">Alarme a (bar)</label><input id="oAla" type="number" min="50" max="200" step="5" inputmode="numeric" data-o="alarme"></div>
   </section>
 
@@ -369,7 +368,7 @@ function nextNum(o){let m=0;(o||occ).equipas.forEach(t=>t.elems.forEach(e=>{cons
 function blankTeam(o){const t={id:uid('t'),nome:'',local:'',elems:[]};for(let i=0;i<4;i++){const n=nextNumWith(o,t);t.elems.push(blankElem(n))}return t}
 function nextNumWith(o,t){let m=0;o.equipas.concat([t]).forEach(x=>x.elems.forEach(e=>{const n=parseInt(e.num,10);if(n>m)m=n}));return m+1}
 function newOcc(prevInt){
-  const o={id:uid('o'),designacao:'',cos:'',data:todayISO(),intervalo:prevInt||40,consumo:(occ&&occ.consumo)||5,alarme:(occ&&occ.alarme)||80,obs:'',equipas:[],criado:Date.now(),atualizado:Date.now()};
+  const o={id:uid('o'),designacao:'',cos:'',data:todayISO(),intervalo:prevInt||40,alarme:(occ&&occ.alarme)||80,obs:'',equipas:[],criado:Date.now(),atualizado:Date.now()};
   o.equipas.push(blankTeam(o));
   return o;
 }
@@ -383,12 +382,43 @@ function findT(id){return occ.equipas.find(t=>t.id===id)}
 function findE(t,id){return t&&t.elems.find(e=>e.id===id)}
 const hasData=e=>!!(e.nome||e.pi!=null||e.he||e.pf!=null||e.hs);
 
-const rate=()=>+occ.consumo||5, alarmAt=()=>+occ.alarme||80;
+const alarmAt=()=>+occ.alarme||80;
+const REF_RATE=5, MIN_HIST_MS=5*60000, MIN_LR_MS=2*60000;
+const plausible=r=>r>=1&&r<=25;
+const keyName=n=>normN(n||'').toLowerCase();
+/* consumo real de uma intervenção concluída (bar/min) */
+function realRate(e){
+  if(!e.heTs||!e.hsTs||e.pi==null||e.pf==null) return null;
+  const ms=e.hsTs-e.heTs; if(ms<MIN_HIST_MS||e.pf>=e.pi) return null;
+  const r=(e.pi-e.pf)/(ms/60000); return plausible(r)?r:null;
+}
+let histDirty=true, histMap={};
+function buildHist(){
+  histMap={};
+  Object.values(store).forEach(o=>(o.equipas||[]).forEach(t=>(t.elems||[]).forEach(e=>{
+    const r=realRate(e), k=keyName(e.nome); if(r==null||!k) return;
+    (histMap[k]=histMap[k]||[]).push({id:e.id,r});
+  })));
+  histDirty=false;
+}
+/* melhor estimativa de consumo para um elemento: leitura rádio > histórico > média da ocorrência > referência */
+function rateFor(e){
+  if(e.lr!=null&&e.lrTs&&e.heTs&&e.pi!=null&&e.lrTs-e.heTs>=MIN_LR_MS&&e.pi>e.lr){
+    const r=(e.pi-e.lr)/((e.lrTs-e.heTs)/60000); if(plausible(r)) return {r,src:'leitura rádio'};
+  }
+  if(histDirty) buildHist();
+  const h=(histMap[keyName(e.nome)]||[]).filter(x=>x.id!==e.id);
+  if(h.length) return {r:h.reduce((a,x)=>a+x.r,0)/h.length,src:'histórico, '+h.length+(h.length>1?' intervenções':' intervenção')};
+  const oc=[]; occ.equipas.forEach(t=>t.elems.forEach(x=>{const r=realRate(x); if(r!=null&&x.id!==e.id) oc.push(r)}));
+  if(oc.length) return {r:oc.reduce((a,x)=>a+x,0)/oc.length,src:'média da ocorrência'};
+  return {r:REF_RATE,src:'referência'};
+}
+const fmtRate=r=>r.toFixed(1).replace('.',',');
 function estimate(e,now){
   if(!e.heTs||e.pi==null) return null;
   const useLr=e.lr!=null&&e.lrTs&&e.lrTs>=e.heTs;
   const base=useLr?e.lr:e.pi, t0=useLr?e.lrTs:e.heTs;
-  return Math.max(0,Math.round(base-rate()*(now-t0)/60000));
+  return Math.max(0,Math.round(base-rateFor(e).r*(now-t0)/60000));
 }
 function status(e,now){
   if(e.he&&!e.hs){
@@ -412,6 +442,7 @@ function pClassOut(v){if(v==null||v==='')return '';return v<=RESERVE?'p-bad':(v<
 
 /* ---------- commit / sync ---------- */
 function commit(structural){
+  histDirty=true;
   occ.atualizado=Date.now(); store[occ.id]=occ; saveLocal(); scheduleRemote(occ.id);
   if(structural) render(); else updateSummary();
 }
@@ -446,6 +477,7 @@ function setSync(){
 function editing(){const a=document.activeElement;return !!(a&&(a.tagName==='INPUT'||a.tagName==='TEXTAREA'))}
 
 function onRemote(snap){
+  histDirty=true;
   const seen=new Set();
   snap.docs.forEach(d=>{
     const r=d.data(); if(!r) return; seen.add(d.id);
@@ -469,7 +501,7 @@ document.addEventListener('focusout',()=>setTimeout(()=>{if(deferRender&&!editin
 
 /* ---------- render ---------- */
 function render(){
-  if(occ.consumo==null)occ.consumo=5; if(occ.alarme==null)occ.alarme=80;
+  if(occ.alarme==null)occ.alarme=80; histDirty=true;
   document.querySelectorAll('[data-o]').forEach(i=>{const v=occ[i.dataset.o];i.value=v==null?'':v});
   $('#teams').innerHTML=occ.equipas.map(teamHTML).join('');
   document.querySelectorAll('#teams tr.row').forEach(updateRow);
@@ -489,7 +521,7 @@ function teamHTML(t,i){
     </div>
   </div>
   <div class="scroll"><table>
-    <thead><tr><th>N.º</th><th>Nome</th><th>Pressão inicial</th><th>Hora de entrada</th><th>Saída previsível</th><th>Pressão estimada</th><th>Pressão final</th><th>Ar consumido</th><th>Hora de saída</th><th>Tempo de intervenção</th><th><span class="noprint" style="position:absolute;left:-9999px">Remover</span></th></tr></thead>
+    <thead><tr><th>N.º</th><th>Nome</th><th>Pressão inicial</th><th>Hora de entrada</th><th>Saída previsível</th><th>Pressão estimada / consumo</th><th>Pressão final</th><th>Ar consumido</th><th>Hora de saída</th><th>Tempo de intervenção</th><th><span class="noprint" style="position:absolute;left:-9999px">Remover</span></th></tr></thead>
     <tbody>${t.elems.map(e=>rowHTML(e)).join('')}</tbody>
   </table></div>
 </section>`;
@@ -543,7 +575,12 @@ function paintStatus(tr,e,now){
   const est=tr.querySelector('[data-d=est]'), info=tr.querySelector('[data-d=estInfo]');
   if(s.est!=null){
     est.textContent=s.est+' bar'; est.className=s.est<=alarmAt()?'c-over':(s.est<=alarmAt()+40?'c-warn':'c-ok');
-    info.textContent=(e.lr!=null&&e.lrTs>=e.heTs)?('leitura '+e.lr+' bar às '+hm(new Date(e.lrTs))):'desde a entrada';
+    const rf=rateFor(e);
+    info.textContent=((e.lr!=null&&e.lrTs>=e.heTs)?('leitura '+e.lr+' bar às '+hm(new Date(e.lrTs))+', '):'')+fmtRate(rf.r)+' bar/min ('+rf.src+')';
+  }else if(s.k==='out'){
+    const r=realRate(e); est.className='c-mut';
+    if(r!=null){ est.textContent=fmtRate(r)+' bar/min'; info.textContent='consumo real' }
+    else { est.textContent='—'; info.textContent=e.pf==null?'falta pressão final':'' }
   }else{ est.textContent='—'; est.className=''; info.textContent=''; }
   return s;
 }
@@ -585,7 +622,7 @@ const toInt=v=>{const n=parseInt(String(v).replace(/\D/g,''),10);return isNaN(n)
 document.addEventListener('input',ev=>{
   const i=ev.target;
   if(i.dataset.o){ let v=i.value, k=i.dataset.o;
-    if(k==='intervalo'||k==='alarme'||k==='consumo'){ v=k==='consumo'?parseFloat(String(v).replace(',','.')):toInt(v); if(!v||v<=0) return; occ[k]=v; document.querySelectorAll('#teams tr.row').forEach(updateRow); commit(false); tick(); return }
+    if(k==='intervalo'||k==='alarme'){ v=toInt(v); if(!v||v<=0) return; occ[k]=v; document.querySelectorAll('#teams tr.row').forEach(updateRow); commit(false); tick(); return }
     occ[k]=v; commit(false); return; }
   if(i.dataset.tf){ const {t}=ctxOf(i); if(!t)return; t[i.dataset.tf]=i.value; commit(false); return; }
   const f=i.dataset.f; if(!f) return;
@@ -759,8 +796,8 @@ async function makePdf(){
   doc.setFont('helvetica','normal'); doc.setTextColor(23,32,43);
   doc.text('Não esquecer a reserva de 50 bar (± 10 min).   Não deixar entrar com pressão igual ou inferior a 160 bar.',M+24,33.3);
   // Dados da ocorrência
-  const info=[['Designação da ocorrência',occ.designacao||'-'],['Comandante das Operações',occ.cos||'-'],['Data',dStr||'-'],['Tempo previsto',(occ.intervalo||40)+' min'],['Consumo médio',String(occ.consumo||5).replace('.',',')+' bar/min'],['Alarme',(occ.alarme||80)+' bar']];
-  const colW=[80,70,30,30,32,25]; let x=M;
+  const info=[['Designação da ocorrência',occ.designacao||'-'],['Comandante das Operações',occ.cos||'-'],['Data',dStr||'-'],['Tempo previsto',(occ.intervalo||40)+' min'],['Alarme',(occ.alarme||80)+' bar']];
+  const colW=[90,80,32,32,30]; let x=M;
   info.forEach((it,i)=>{ doc.setFontSize(8); doc.setTextColor(90,103,120); doc.text(it[0],x,42);
     doc.setFontSize(11); doc.setTextColor(23,32,43); doc.setFont('helvetica','bold');
     doc.text(doc.splitTextToSize(it[1],colW[i]-3)[0],x,47.5); doc.setFont('helvetica','normal'); x+=colW[i]+2 });
@@ -774,19 +811,20 @@ async function makePdf(){
       if(i===0) row.push({content:t.nome||'-',rowSpan:els.length,styles:{fontStyle:'bold',fontSize:11,valign:'middle'}});
       row.push(String(e.num||''),e.nome||'',e.pi==null?'':String(e.pi),e.he||'');
       if(i===0) row.push({content:t.local||'',rowSpan:els.length,styles:{valign:'middle'}});
-      row.push(e.heTs?hm(new Date(e.heTs+occ.intervalo*60000)):'',e.pf==null?'':String(e.pf),String(air),e.hs||'',(e.heTs&&e.hsTs)?fmtDur(e.hsTs-e.heTs):'');
+      const rr=realRate(e);
+      row.push(e.heTs?hm(new Date(e.heTs+occ.intervalo*60000)):'',e.pf==null?'':String(e.pf),String(air),rr==null?'':fmtRate(rr),e.hs||'',(e.heTs&&e.hsTs)?fmtDur(e.hsTs-e.heTs):'');
       body.push(row); meta.push(e);
     });
   });
-  if(!body.length) body.push([{content:'Sem elementos registados.',colSpan:11,styles:{halign:'center',textColor:[90,103,120]}}]);
+  if(!body.length) body.push([{content:'Sem elementos registados.',colSpan:12,styles:{halign:'center',textColor:[90,103,120]}}]);
   const colorFor=(cls)=>({'p-ok':[[223,243,231],[28,124,71]],'p-warn':[[255,241,204],[169,111,0]],'p-bad':[[253,227,231],[200,16,46]]})[cls];
   doc.autoTable({
     startY:52, margin:{left:M,right:M,bottom:16},
-    head:[['Equipa','N.º','Nome','Pressão inicial (bar)','Hora entrada','Localização','Saída previsível','Pressão final (bar)','Ar consumido (bar)','Hora saída','Tempo intervenção']],
+    head:[['Equipa','N.º','Nome','Pressão inicial (bar)','Hora entrada','Localização','Saída previsível','Pressão final (bar)','Ar consumido (bar)','Consumo (bar/min)','Hora saída','Tempo intervenção']],
     body, theme:'grid',
     styles:{font:'helvetica',fontSize:9.5,cellPadding:2,lineColor:[190,198,208],lineWidth:0.2,textColor:[23,32,43],valign:'middle'},
     headStyles:{fillColor:[46,59,76],textColor:255,fontStyle:'bold',fontSize:8.5,halign:'center',valign:'middle'},
-    columnStyles:{0:{cellWidth:20,halign:'center'},1:{cellWidth:12,halign:'center'},2:{cellWidth:48},3:{halign:'right',fontStyle:'bold'},4:{halign:'center'},6:{halign:'center'},7:{halign:'right',fontStyle:'bold'},8:{halign:'right'},9:{halign:'center'},10:{halign:'center'}},
+    columnStyles:{0:{cellWidth:18,halign:'center'},1:{cellWidth:11,halign:'center'},2:{cellWidth:44},3:{halign:'right',fontStyle:'bold'},4:{halign:'center'},6:{halign:'center'},7:{halign:'right',fontStyle:'bold'},8:{halign:'right'},9:{halign:'right'},10:{halign:'center'},11:{halign:'center'}},
     didParseCell:d=>{
       if(d.section!=='body') return;
       const raw=d.row.raw; if(!raw||raw.length<5) return;
@@ -888,9 +926,9 @@ async function exportXlsx(){
     [],
     ['Designação da Ocorrência:','',occ.designacao,'','','Comandante das Operações:',occ.cos],
     ['Tempo previsto (min):','',occ.intervalo],
-    ['Equipas','N.º','Nome','Pressão Inicial (bar)','Hora Entrada','Localização','Hora Saída Previsível','Pressão Final (bar)','Ar Consumido (bar)','Hora Saída','Tempo Intervenção']
+    ['Equipas','N.º','Nome','Pressão Inicial (bar)','Hora Entrada','Localização','Hora Saída Previsível','Pressão Final (bar)','Ar Consumido (bar)','Consumo (bar/min)','Hora Saída','Tempo Intervenção']
   ];
-  const merges=[{s:{r:0,c:5},e:{r:0,c:10}},{s:{r:2,c:0},e:{r:2,c:1}}];
+  const merges=[{s:{r:0,c:5},e:{r:0,c:11}},{s:{r:2,c:0},e:{r:2,c:1}}];
   occ.equipas.forEach(t=>{
     const els=t.elems.filter(hasData); if(!els.length) return;
     const start=rows.length;
@@ -898,13 +936,14 @@ async function exportXlsx(){
       const prev=e.heTs?hm(new Date(e.heTs+occ.intervalo*60000)):'';
       const air=(e.pi!=null&&e.pf!=null)?e.pi-e.pf:'';
       const dur=(e.heTs&&e.hsTs)?(()=>{const m=Math.round((e.hsTs-e.heTs)/60000);return Math.floor(m/60)+':'+pad(m%60)})():'';
-      rows.push([i?'':t.nome,e.num===''?'':(isNaN(+e.num)?e.num:+e.num),e.nome,e.pi==null?'':e.pi,e.he,i?'':t.local,prev,e.pf==null?'':e.pf,air,e.hs,dur]);
+      const rr=realRate(e);
+      rows.push([i?'':t.nome,e.num===''?'':(isNaN(+e.num)?e.num:+e.num),e.nome,e.pi==null?'':e.pi,e.he,i?'':t.local,prev,e.pf==null?'':e.pf,air,rr==null?'':Math.round(rr*10)/10,e.hs,dur]);
     });
     if(els.length>1){merges.push({s:{r:start,c:0},e:{r:start+els.length-1,c:0}});merges.push({s:{r:start,c:5},e:{r:start+els.length-1,c:5}})}
   });
   rows.push([]); rows.push(['Observações','',occ.obs||'']); rows.push([]); rows.push(['© Prazeres · nprazeres2@gmail.com']);
   const ws=XLSX.utils.aoa_to_sheet(rows); ws['!merges']=merges;
-  ws['!cols']=[{wch:10},{wch:6},{wch:24},{wch:14},{wch:12},{wch:18},{wch:18},{wch:14},{wch:14},{wch:11},{wch:16}];
+  ws['!cols']=[{wch:10},{wch:6},{wch:24},{wch:14},{wch:12},{wch:18},{wch:18},{wch:14},{wch:14},{wch:16},{wch:11},{wch:16}];
   const wb=XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb,ws,'Controlo');
   const out=XLSX.write(wb,{bookType:'xlsx',type:'array'});
   const name='Controlo_Pressao_ARICAs_'+(occ.designacao||'ocorrencia').replace(/[^\w\-À-ÿ ]+/g,'').trim().replace(/\s+/g,'_').slice(0,50)+'_'+(occ.data||todayISO())+'.xlsx';

@@ -1,5 +1,5 @@
 // Service worker: permite abrir a app sem rede depois da primeira visita.
-const CACHE = 'aricas-v5';
+const CACHE = 'aricas-v6';
 const CORE = ['./', './index.html', './manifest.json', './icon-192.png', './icon-512.png'];
 const LIBS = ['www.gstatic.com', 'cdnjs.cloudflare.com', 'cdn.jsdelivr.net', 'fonts.googleapis.com', 'fonts.gstatic.com'];
 
