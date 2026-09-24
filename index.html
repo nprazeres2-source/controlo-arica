@@ -365,7 +365,7 @@ function saveLocal(){
 /* ---------- model ---------- */
 function blankElem(num){return{id:uid('e'),num:num||'',nome:'',pi:null,he:'',heTs:null,pf:null,hs:'',hsTs:null,lr:null,lrTs:null}}
 function nextNum(o){let m=0;(o||occ).equipas.forEach(t=>t.elems.forEach(e=>{const n=parseInt(e.num,10);if(n>m)m=n}));return m+1}
-function blankTeam(o){const t={id:uid('t'),nome:'',local:'',elems:[]};for(let i=0;i<4;i++){const n=nextNumWith(o,t);t.elems.push(blankElem(n))}return t}
+function blankTeam(o){const t={id:uid('t'),nome:'',local:'',elems:[]};for(let i=0;i<2;i++){const n=nextNumWith(o,t);t.elems.push(blankElem(n))}return t}
 function nextNumWith(o,t){let m=0;o.equipas.concat([t]).forEach(x=>x.elems.forEach(e=>{const n=parseInt(e.num,10);if(n>m)m=n}));return m+1}
 function newOcc(prevInt){
   const o={id:uid('o'),designacao:'',cos:'',data:todayISO(),intervalo:prevInt||40,alarme:(occ&&occ.alarme)||80,obs:'',equipas:[],criado:Date.now(),atualizado:Date.now()};
