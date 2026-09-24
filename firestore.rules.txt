@@ -5,8 +5,8 @@
 // Só quem sabe o código de equipa consegue chegar aos dados dessa equipa.
 
     match /aricas_equipas/{codigo}/ocorrencias/{id} {
-      allow read, write: if codigo.size() >= 8;
+      allow read, write: if codigo.size() >= 6;
     }
     match /aricas_equipas/{codigo}/config/{id} {
-      allow read, write: if codigo.size() >= 8;
+      allow read, write: if codigo.size() >= 6;
     }

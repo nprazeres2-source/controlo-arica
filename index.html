@@ -296,7 +296,7 @@ tr.st-out{color:var(--muted)}
     <p style="margin-top:0;color:var(--muted)">Os dispositivos com o mesmo código de equipa partilham as ocorrências e os nomes guardados. Sem código, os registos ficam só neste dispositivo.</p>
     <div class="cstate" id="cState"></div>
     <label for="cCode" style="display:block;font-size:13px;color:var(--muted);margin-bottom:3px;font-weight:500">Código de equipa</label>
-    <div class="codebox"><input id="cCode" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="ex.: AHBVF-7K3Q-9XZ2"><button class="btn" id="cGen" type="button">Gerar código</button></div>
+    <div class="codebox"><input id="cCode" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="ex.: ALFA-HORTA ou AHBVF-7K3Q-9XZ2"><button class="btn" id="cGen" type="button">Gerar código</button></div>
     <div class="cerr" id="cErr" role="alert"></div>
     <div class="actions"><button class="btn danger" id="cOff">Desligar</button><span class="spacer"></span><button class="btn" data-close>Continuar sem sincronizar</button><button class="btn primary" id="cOn">Ligar</button></div>
   </div>
@@ -326,13 +326,12 @@ tr.st-out{color:var(--muted)}
    ficam em aricas_equipas/<código de equipa>/...
    ===================================================================== */
 const FIREBASE_CONFIG = {
-  apiKey: "AIzaSyB1ttAaqM7HsiJps6o9Qxbpy7fn0XFDy5Y",
-  authDomain: "ahbvf-arica.firebaseapp.com",
-  projectId: "ahbvf-arica",
-  storageBucket: "ahbvf-arica.firebasestorage.app",
-  messagingSenderId: "257504152704",
-  appId: "1:257504152704:web:c13bbf6ba299ce8d44aa65",
-  measurementId: "G-B7W71KYBGY"
+  apiKey: "",
+  authDomain: "",
+  projectId: "",
+  storageBucket: "",
+  messagingSenderId: "",
+  appId: ""
 };
 
 </script>
@@ -982,7 +981,7 @@ let unsubs=[], fsReady=false;
 let teamCode=''; try{teamCode=localStorage.getItem('arica.equipa')||''}catch(e){}
 const occCol=()=>firebase.firestore().collection('aricas_equipas').doc(teamCode).collection('ocorrencias');
 const nomesDoc=()=>firebase.firestore().collection('aricas_equipas').doc(teamCode).collection('config').doc('nomes');
-const normCode=s=>String(s||'').toUpperCase().replace(/\s+/g,'').replace(/[^A-Z0-9-]/g,'');
+const normCode=s=>String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase().trim().replace(/\s+/g,'-').replace(/[^A-Z0-9_-]/g,'').replace(/-+/g,'-');
 
 function startSync(){
   if(db||!fsReady||!teamCode) return;
@@ -1019,7 +1018,7 @@ function startFirebase(){
 function openSync(){
   $('#cCode').value=teamCode; $('#cErr').textContent='';
   const st=$('#cState');
-  if(!fsReady){ st.className='cstate'; st.textContent=fbMsg||'Firebase indisponível.' }
+  if(!fsReady){ st.className='cstate'; st.textContent=FIREBASE_CONFIG.apiKey?'Sem ligação ao Firebase (verifique a internet). Pode guardar o código na mesma.':'Falta configurar o Firebase no index.html (FIREBASE_CONFIG). Pode guardar o código na mesma.' }
   else if(db){ st.className='cstate on'; st.textContent='Ligado à equipa '+teamCode+'.' }
   else { st.className='cstate'; st.textContent=teamCode?('Código '+teamCode+' guardado, sem ligação neste momento.'):'Não ligado: os registos ficam só neste dispositivo.' }
   $('#cOff').hidden=!teamCode;
@@ -1027,7 +1026,7 @@ function openSync(){
 }
 $('#bSync').onclick=openSync;
 $('#sync').onclick=openSync; $('#sync').onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();openSync()}};
-$('#cCode').addEventListener('input',e=>{const p=e.target.selectionStart;e.target.value=normCode(e.target.value);try{e.target.setSelectionRange(p,p)}catch(x){}});
+$('#cCode').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();$('#cOn').click()}});
 $('#cGen').onclick=()=>{
   const A='ABCDEFGHJKLMNPQRSTUVWXYZ23456789', r=new Uint32Array(8); crypto.getRandomValues(r);
   const s=[...r].map(x=>A[x%A.length]).join('');
@@ -1035,11 +1034,13 @@ $('#cGen').onclick=()=>{
 };
 $('#cOn').onclick=()=>{
   const c=normCode($('#cCode').value);
-  if(c.length<8){ $('#cErr').textContent='O código deve ter pelo menos 8 caracteres (letras, números e hífen).'; return }
-  if(!fsReady){ $('#cErr').textContent='O Firebase não está disponível. Verifique a configuração e a ligação à internet.'; return }
+  if(c.length<6){ $('#cErr').textContent='O código deve ter pelo menos 6 letras ou números'+(c?' (ficou "'+c+'").':'.'); return }
+  $('#cCode').value=c;
   if(c!==teamCode){ stopSync(); teamCode=c; try{localStorage.setItem('arica.equipa',c)}catch(e){} }
   try{localStorage.removeItem('arica.semcodigo')}catch(e){}
-  startSync(); $('#ovSync').classList.remove('on'); toast('Ligado à equipa '+c+'.','info');
+  $('#ovSync').classList.remove('on');
+  if(!fsReady){ fbMsg='Código '+c+' guardado. '+(FIREBASE_CONFIG.apiKey?'Sem ligação ao Firebase: verifique a internet.':'Falta configurar o Firebase no index.html.'); setSync(); toast('Código '+c+' guardado. A sincronização começa quando o Firebase estiver configurado e com internet.','info'); return }
+  startSync(); toast('Ligado à equipa '+c+'.','info');
 };
 $('#cOff').onclick=async()=>{
   $('#ovSync').classList.remove('on');
