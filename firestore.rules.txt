@@ -1,11 +1,12 @@
-// Acrescente estes dois blocos dentro de "match /databases/{database}/documents { ... }"
+// Acrescente estes blocos dentro de "match /databases/{database}/documents { ... }"
 // nas regras do Firestore (Consola Firebase > Firestore Database > Regras).
+// Se já tinha colado os blocos antigos das ARICAs (aricas_ocorrencias / aricas_config), apague-os.
 // Mantenha as regras que já tem para as outras apps (ex.: fardamento).
-// Só quem fez login na app (utilizador AHBVF) consegue ler e gravar.
+// Só quem sabe o código de equipa consegue chegar aos dados dessa equipa.
 
-    match /aricas_ocorrencias/{id} {
-      allow read, write: if request.auth != null;
+    match /aricas_equipas/{codigo}/ocorrencias/{id} {
+      allow read, write: if codigo.size() >= 8;
     }
-    match /aricas_config/{id} {
-      allow read, write: if request.auth != null;
+    match /aricas_equipas/{codigo}/config/{id} {
+      allow read, write: if codigo.size() >= 8;
     }
