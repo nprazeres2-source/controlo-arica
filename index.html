@@ -93,7 +93,7 @@ button,input,textarea{font:inherit;color:inherit}
 .tstat b{color:var(--ink)}
 .tbtns{display:flex;gap:8px;flex-wrap:wrap;margin-left:auto}
 .scroll{overflow-x:auto}
-table{border-collapse:collapse;width:100%;min-width:1180px}
+table{border-collapse:collapse;width:100%;min-width:1300px}
 th{font-size:12.5px;color:var(--muted);font-weight:600;text-align:left;padding:8px 6px;border-bottom:1px solid var(--line);white-space:nowrap;background:var(--surface)}
 td{padding:6px;border-bottom:1px solid var(--line);vertical-align:middle}
 tr:last-child td{border-bottom:none}
@@ -143,6 +143,13 @@ tr.st-out{color:var(--muted)}
 .toast.on{display:block}
 .toast.info{border-left-color:var(--green)}
 .printhead{display:none}
+.closedbar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:0 0 14px;background:var(--green-bg);border-left:6px solid var(--green);padding:10px 14px}
+.closedbar[hidden]{display:none}
+.closedbar strong{font-family:var(--cond);font-size:20px;color:var(--green)}
+.closedbar span{flex:1;min-width:200px;font-weight:500}
+body.closed .now,body.closed .del,body.closed .tbtns,body.closed #bAddTeam,body.closed .est input{display:none!important}
+body.closed td input:disabled,body.closed .occ input:disabled,body.closed textarea:disabled{opacity:1;color:var(--ink);-webkit-text-fill-color:var(--ink);background:transparent;border-color:transparent}
+.hist .fech{font-size:12px;color:var(--muted);font-weight:600}
 .codebox{display:flex;gap:8px;flex-wrap:wrap}
 .codebox input{flex:1;min-width:180px;font-family:var(--cond);font-size:22px;font-weight:600;letter-spacing:1px;text-transform:uppercase;background:var(--field);border:1px solid var(--line);border-radius:4px;padding:6px 10px;min-height:44px}
 .cstate{padding:10px 12px;margin:12px 0;border-left:5px solid var(--line);background:var(--field);font-weight:500}
@@ -161,6 +168,15 @@ tr.st-out{color:var(--muted)}
 .est input{width:88px;min-height:34px;padding:4px 6px;font-size:13px;margin-top:3px}
 .alarm{position:fixed;top:0;left:0;right:0;z-index:70;background:var(--red);color:#fff;display:none;align-items:center;gap:14px;flex-wrap:wrap;padding:calc(12px + env(safe-area-inset-top,0px)) 16px 12px}
 .alarm.on{display:flex}
+.alarm.warn{background:#8A5A00}
+.alarm.warn button{color:#8A5A00}
+.stats{width:100%;min-width:640px}
+.stats td,.stats th{padding:7px 8px;font-size:14px}
+.stats td.n{text-align:right;font-variant-numeric:tabular-nums}
+.stats td b{font-family:var(--cond);font-size:18px}
+.oinfo{padding:10px 12px;background:var(--field);border-left:5px solid var(--line);margin:10px 0;font-weight:500}
+.oinfo.ok{border-left-color:var(--green);background:var(--green-bg)}
+.oinfo.bad{border-left-color:var(--amber);background:var(--amber-bg)}
 .alarm strong{font-family:var(--cond);font-size:24px}
 .alarm span{flex:1;min-width:200px;font-weight:600;font-size:16px}
 .alarm button{background:#fff;color:#8f0a1f;border:none;border-radius:4px;padding:10px 18px;font-weight:700;min-height:44px;cursor:pointer}
@@ -236,6 +252,8 @@ tr.st-out{color:var(--muted)}
     </div>
   </div>
 
+  <div class="closedbar noprint" id="closedBar" hidden><strong>Ocorrência fechada</strong><span id="closedTxt"></span><button class="btn" id="bReopen">Reabrir ocorrência</button></div>
+
   <section class="occ" aria-label="Dados da ocorrência">
     <div class="fld"><label for="oDes">Designação da ocorrência</label><input id="oDes" data-o="designacao" placeholder="ex.: Exercício Aeroporto"></div>
     <div class="fld"><label for="oCos">Comandante das Operações</label><input id="oCos" data-o="cos" placeholder="Nome do COS"></div>
@@ -248,6 +266,7 @@ tr.st-out{color:var(--muted)}
     <button class="btn primary" id="bNew">Nova ocorrência</button>
     <button class="btn" id="bHist">Ocorrências anteriores</button>
     <button class="btn" id="bNames">Nomes guardados</button>
+    <button class="btn" id="bStats">Estatísticas</button>
     <button class="btn" id="bTest">Testar alarme</button>
     <span class="spacer"></span>
     <button class="btn" id="bXls" hidden>Exportar Excel</button>
@@ -298,6 +317,22 @@ tr.st-out{color:var(--muted)}
     <div class="codebox"><input id="cCode" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="ex.: ALFA-HORTA ou AHBVF-7K3Q-9XZ2"><button class="btn" id="cGen" type="button">Gerar código</button></div>
     <div class="cerr" id="cErr" role="alert"></div>
     <div class="actions"><button class="btn danger" id="cOff">Desligar</button><span class="spacer"></span><button class="btn" data-close>Continuar sem sincronizar</button><button class="btn primary" id="cOn">Ligar</button></div>
+  </div>
+</div>
+<div class="ov" id="ovOut" role="dialog" aria-modal="true" aria-labelledby="oT">
+  <div class="dlg" style="max-width:440px">
+    <h2 id="oT">Ocorrência fechada</h2>
+    <p style="margin-top:0;color:var(--muted)">As assinaturas estão registadas e os campos bloqueados.</p>
+    <div class="oinfo" id="oInfo">A preparar o PDF…</div>
+    <div class="actions"><button class="btn" data-close>Fechar</button><span class="spacer"></span><button class="btn" id="oPrint">Imprimir</button><button class="btn" id="oShare" disabled>Partilhar PDF</button><button class="btn primary" id="oPdf" disabled>Descarregar PDF</button></div>
+  </div>
+</div>
+<div class="ov" id="ovStats" role="dialog" aria-modal="true" aria-labelledby="stT">
+  <div class="dlg" style="max-width:880px">
+    <h2 id="stT">Estatísticas de consumo por elemento</h2>
+    <p style="margin-top:0;color:var(--muted)">Calculado com todas as ocorrências da equipa. O consumo só conta intervenções com pelo menos 5 minutos e com pressão final registada.</p>
+    <div class="scroll"><table class="stats"><thead><tr><th>Nome</th><th>Intervenções</th><th>Consumo médio (bar/min)</th><th>Mín. – máx.</th><th>Tempo total</th><th>Ar total (bar)</th><th>Última</th></tr></thead><tbody id="statsBody"></tbody></table></div>
+    <div class="actions"><button class="btn" id="stXls">Exportar Excel</button><span class="spacer"></span><button class="btn" data-close>Fechar</button></div>
   </div>
 </div>
 <div class="ov" id="ovHist" role="dialog" aria-modal="true" aria-labelledby="hT">
@@ -363,7 +398,7 @@ function saveLocal(){
 }
 
 /* ---------- model ---------- */
-function blankElem(num){return{id:uid('e'),num:num||'',nome:'',pi:null,he:'',heTs:null,pf:null,hs:'',hsTs:null,lr:null,lrTs:null}}
+function blankElem(num){return{id:uid('e'),num:num||'',nome:'',arica:'',pi:null,he:'',heTs:null,pf:null,hs:'',hsTs:null,lr:null,lrTs:null}}
 function nextNum(o){let m=0;(o||occ).equipas.forEach(t=>t.elems.forEach(e=>{const n=parseInt(e.num,10);if(n>m)m=n}));return m+1}
 function blankTeam(o){const t={id:uid('t'),nome:'',local:'',elems:[]};for(let i=0;i<2;i++){const n=nextNumWith(o,t);t.elems.push(blankElem(n))}return t}
 function nextNumWith(o,t){let m=0;o.equipas.concat([t]).forEach(x=>x.elems.forEach(e=>{const n=parseInt(e.num,10);if(n>m)m=n}));return m+1}
@@ -421,6 +456,7 @@ function estimate(e,now){
   return Math.max(0,Math.round(base-rateFor(e).r*(now-t0)/60000));
 }
 function status(e,now){
+  if(occ.fechada&&e.he&&!e.hs) return {k:'idle'};
   if(e.he&&!e.hs){
     if(e.pi!=null&&e.pi<=MIN_ENTRY) return {k:'bad',rem:null};
     const prev=e.heTs+occ.intervalo*60000, rem=Math.round((prev-now)/1000), est=estimate(e,now);
@@ -505,7 +541,15 @@ function render(){
   document.querySelectorAll('[data-o]').forEach(i=>{const v=occ[i.dataset.o];i.value=v==null?'':v});
   $('#teams').innerHTML=occ.equipas.map(teamHTML).join('');
   document.querySelectorAll('#teams tr.row').forEach(updateRow);
-  updateSummary(); tick();
+  applyLock(); updateSummary(); tick();
+}
+function applyLock(){
+  const closed=!!occ.fechada;
+  document.body.classList.toggle('closed',closed);
+  document.querySelectorAll('#teams input, .occ input, #oObs').forEach(i=>{i.disabled=closed});
+  $('#closedBar').hidden=!closed;
+  if(closed){ const d=new Date(occ.fechada.ts);
+    $('#closedTxt').textContent='Assinada pelo COS'+(occ.cos?' '+occ.cos:'')+' em '+d.toLocaleDateString('pt-PT')+' às '+hm(d)+'. Os campos estão bloqueados.' }
 }
 function teamHTML(t,i){
   return `<section class="team" data-t="${t.id}">
@@ -521,7 +565,7 @@ function teamHTML(t,i){
     </div>
   </div>
   <div class="scroll"><table>
-    <thead><tr><th>N.º</th><th>Nome</th><th>Pressão inicial</th><th>Hora de entrada</th><th>Saída previsível</th><th>Pressão estimada / consumo</th><th>Pressão final</th><th>Ar consumido</th><th>Hora de saída</th><th>Tempo de intervenção</th><th><span class="noprint" style="position:absolute;left:-9999px">Remover</span></th></tr></thead>
+    <thead><tr><th>N.º</th><th>Nome</th><th>ARICA / garrafa</th><th>Pressão inicial</th><th>Hora de entrada</th><th>Saída previsível</th><th>Pressão estimada / consumo</th><th>Pressão final</th><th>Ar consumido</th><th>Hora de saída</th><th>Tempo de intervenção</th><th><span class="noprint" style="position:absolute;left:-9999px">Remover</span></th></tr></thead>
     <tbody>${t.elems.map(e=>rowHTML(e)).join('')}</tbody>
   </table></div>
 </section>`;
@@ -531,6 +575,7 @@ function rowHTML(e){
   return `<tr class="row" data-e="${e.id}">
   <td><input class="num" data-f="num" value="${esc(e.num)}" inputmode="numeric" aria-label="Número"></td>
   <td><input data-f="nome" list="nomesList" value="${esc(e.nome)}" placeholder="Nome" aria-label="Nome" autocomplete="off" style="min-width:150px"></td>
+  <td><input data-f="arica" value="${esc(e.arica||'')}" placeholder="ex.: A12 / G345" aria-label="Número do aparelho ou garrafa" autocomplete="off" style="min-width:110px"></td>
   <td><input class="pr" data-f="pi" value="${v(e.pi)}" inputmode="numeric" aria-label="Pressão inicial em bar" placeholder="bar"></td>
   <td><div class="tc"><input type="time" data-f="he" value="${esc(e.he)}" aria-label="Hora de entrada"><button class="now in" data-act="in-now">Entra</button></div></td>
   <td class="prev"><b data-d="prev">—</b><small data-d="cd"></small></td>
@@ -621,6 +666,7 @@ function updateSummary(){
 const toInt=v=>{const n=parseInt(String(v).replace(/\D/g,''),10);return isNaN(n)?null:n};
 document.addEventListener('input',ev=>{
   const i=ev.target;
+  if(occ.fechada&&(i.dataset.o||i.dataset.tf||i.dataset.f)) return;
   if(i.dataset.o){ let v=i.value, k=i.dataset.o;
     if(k==='intervalo'||k==='alarme'){ v=toInt(v); if(!v||v<=0) return; occ[k]=v; document.querySelectorAll('#teams tr.row').forEach(updateRow); commit(false); tick(); return }
     occ[k]=v; commit(false); return; }
@@ -633,7 +679,7 @@ document.addEventListener('input',ev=>{
   updateRow(tr); commit(false); tick();
 });
 document.addEventListener('change',ev=>{
-  const i=ev.target, f=i.dataset.f; if(!f) return;
+  const i=ev.target, f=i.dataset.f; if(!f||occ.fechada) return;
   const {tr,e}=ctxOf(i); if(!e) return;
   if(f==='he'){
     if(!i.value){e.he='';e.heTs=null}
@@ -647,7 +693,7 @@ document.addEventListener('change',ev=>{
     const v=toInt(i.value); i.value='';
     if(v==null) return;
     if(!(e.he&&!e.hs)){ toast('A leitura só se aplica a elementos em intervenção.'); return }
-    e.lr=v; e.lrTs=Date.now(); if(v>alarmAt()) acked.delete(e.id), saveAck();
+    e.lr=v; e.lrTs=Date.now(); if(v>alarmAt()) acked.delete(e.id+':p80'), saveAck();
     toast(`${e.nome||'Elemento'}: leitura de ${v} bar registada.`,'info');
   }else if(f==='nome'){
     addName(e.nome);
@@ -665,11 +711,12 @@ function canEnter(e){
   if(e.pi<=MIN_ENTRY){toast(`Entrada bloqueada: ${e.nome||'elemento '+e.num} tem ${e.pi} bar (mínimo acima de ${MIN_ENTRY} bar).`);return false}
   return true;
 }
-function setEntry(e,now){e.he=hm(now);e.heTs=now.getTime();e.hs='';e.hsTs=null;e.lr=null;e.lrTs=null;acked.delete(e.id);saveAck()}
+function setEntry(e,now){e.he=hm(now);e.heTs=now.getTime();e.hs='';e.hsTs=null;e.lr=null;e.lrTs=null;['p80','over','warn'].forEach(k=>acked.delete(e.id+':'+k));saveAck()}
 function setExit(e,now){e.hs=hm(now);e.hsTs=now.getTime()}
 
 document.addEventListener('click',async ev=>{
   const b=ev.target.closest('[data-act]'); if(!b) return;
+  if(occ.fechada){ toast('A ocorrência está fechada. Para alterar, carregue em "Reabrir ocorrência".'); return }
   const act=b.dataset.act, {tr,sec,t,e}=ctxOf(b), now=new Date();
   if(act==='in-now'){
     if(e.he&&!e.hs){toast('Este elemento já está em intervenção.');return}
@@ -703,7 +750,7 @@ document.addEventListener('click',async ev=>{
 });
 function focusPf(tid,eid){setTimeout(()=>{const i=document.querySelector(`section[data-t="${tid}"] tr[data-e="${eid}"] [data-f=pf]`);if(i)i.focus()},30)}
 
-$('#bAddTeam').onclick=()=>{occ.equipas.push(blankTeam(occ));commit(true);setTimeout(()=>{const s=document.querySelectorAll('#teams section.team');const last=s[s.length-1];if(last){last.querySelector('[data-tf=nome]').focus()}},30)};
+$('#bAddTeam').onclick=()=>{ if(occ.fechada) return;occ.equipas.push(blankTeam(occ));commit(true);setTimeout(()=>{const s=document.querySelectorAll('#teams section.team');const last=s[s.length-1];if(last){last.querySelector('[data-tf=nome]').focus()}},30)};
 $('#bNew').onclick=async()=>{
   const active=occ.equipas.some(t=>t.elems.some(e=>e.he&&!e.hs));
   if(active&&!(await ask('Ainda há elementos em intervenção nesta ocorrência. Abrir uma nova ocorrência mesmo assim? A atual fica guardada.','Nova ocorrência'))) return;
@@ -739,6 +786,7 @@ function exportPad(role){
   const c=o.getContext('2d'); c.fillStyle='#fff'; c.fillRect(0,0,w,h); c.drawImage(cv,0,0,w,h); return o.toDataURL('image/png');
 }
 $('#bPrint').onclick=()=>{
+  if(occ.fechada){ openOut(); return }
   occ.assin=occ.assin||{};
   $('#sgResp').value=occ.resp||''; $('#sgCos').value=occ.cos||'';
   $('#ovSign').classList.add('on');
@@ -753,16 +801,35 @@ function renderSigPrint(){
     return `<div><div class="si">${s&&s.img?`<img src="${s.img}" alt="">`:''}</div><div class="sp"><b>${title}</b>${nome?'<br>'+esc(nome):''}${s&&s.ts?'<br>'+new Date(s.ts).toLocaleString('pt-PT',{dateStyle:'short',timeStyle:'short'}):''}</div></div>`};
   $('#sigPrint').innerHTML=box('resp','Responsável',occ.resp)+box('cos','Comandante das Operações',occ.cos);
 }
-function saveSigs(){
+async function saveSigs(){
   occ.assin=occ.assin||{};
-  occ.resp=$('#sgResp').value.trim(); occ.cos=$('#sgCos').value.trim(); $('#oCos').value=occ.cos;
+  const cosNome=$('#sgCos').value.trim(), cosSigned=pads.cos.state==='drawn'||pads.cos.state==='kept';
+  if(cosSigned&&!occ.fechada){
+    if(!cosNome){ toast('Indique o nome do COS antes de assinar.'); $('#sgCos').focus(); return false }
+    let act=0; occ.equipas.forEach(t=>t.elems.forEach(e=>{if(e.he&&!e.hs)act++}));
+    const ok=await ask('A assinatura do COS fecha a ocorrência e bloqueia todos os campos.'+(act?' Atenção: ainda há '+act+' elemento(s) sem hora de saída.':'')+' Continuar?','Assinar e fechar');
+    if(!ok) return false;
+  }
+  occ.resp=$('#sgResp').value.trim(); occ.cos=cosNome; $('#oCos').value=occ.cos;
   addName(occ.resp); addName(occ.cos);
   ['resp','cos'].forEach(r=>{const st=pads[r].state; if(st==='drawn') occ.assin[r]={img:exportPad(r),ts:Date.now()}; else if(st==='empty') delete occ.assin[r]});
-  commit(false); renderSigPrint();
+  const closing=cosSigned&&!occ.fechada;
+  if(closing) occ.fechada={ts:Date.now()};
+  commit(closing); renderSigPrint();
   $('#ovSign').classList.remove('on');
+  if(closing) toast('Ocorrência fechada e bloqueada.','info');
+  return true;
 }
-$('#sgPrint').onclick=()=>{ saveSigs(); setTimeout(()=>window.print(),150) };
-$('#sgPdf').onclick=async()=>{ saveSigs(); await makePdf() };
+$('#sgPrint').onclick=async()=>{ if(await saveSigs()) setTimeout(()=>window.print(),150) };
+$('#sgPdf').onclick=async()=>{ if(await saveSigs()){ if(occ.fechada) openOut(); else await makePdf() } };
+$('#ovOut').addEventListener('click',ev=>{ if(ev.target===ev.currentTarget||ev.target.closest('[data-close]')) $('#ovOut').classList.remove('on') });
+$('#oPrint').onclick=()=>{ $('#ovOut').classList.remove('on'); renderSigPrint(); setTimeout(()=>window.print(),150) };
+$('#oPdf').onclick=()=>{ if(outPdf){ saveFile(outPdf.name,outPdf.blob); toast('PDF descarregado.','info') } };
+$('#oShare').onclick=()=>{ if(outPdf) sharePdf(outPdf) };
+$('#bReopen').onclick=async()=>{
+  if(!(await ask('Reabrir a ocorrência? A assinatura do COS é removida e será preciso assinar de novo para a fechar.','Reabrir'))) return;
+  if(occ.assin) delete occ.assin.cos; occ.fechada=null; occ.pdfTs=null; commit(true); toast('Ocorrência reaberta.','info');
+};
 
 /* ---------- PDF ---------- */
 function loadOne(src){return new Promise((res,rej)=>{const s=document.createElement('script');s.src=src;s.onload=res;s.onerror=()=>{s.remove();rej()};document.head.appendChild(s)})}
@@ -771,14 +838,12 @@ async function loadScript(srcs,test){
   for(const s of srcs){ try{ await loadOne(s); if(test()) return }catch(e){} }
   throw new Error('load');
 }
-async function makePdf(){
-  if(!dl){ window.print(); return }
-  toast('A gerar o PDF…','info');
+async function buildPdf(){
   try{
     await loadScript(['https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js','https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js'],()=>window.jspdf);
     await loadScript(['https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js','https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.2/dist/jspdf.plugin.autotable.min.js'],()=>window.jspdf&&window.jspdf.jsPDF.API.autoTable);
-  }catch(e){ toast('Não foi possível preparar o PDF. Verifique a ligação à internet.'); return }
-  const {jsPDF}=window.jspdf, doc=new jsPDF({orientation:'landscape',unit:'mm',format:'a4'});
+  }catch(e){ toast('Não foi possível preparar o PDF. Verifique a ligação à internet.'); return null }
+  const {jsPDF}=window.jspdf, doc=new jsPDF({orientation:'landscape',unit:'mm',format:'a4',compress:true});
   const W=doc.internal.pageSize.getWidth(), H=doc.internal.pageSize.getHeight(), M=10, now=new Date();
   const dStr=occ.data?new Date(occ.data+'T00:00').toLocaleDateString('pt-PT'):'';
   // Cabeçalho
@@ -809,29 +874,29 @@ async function makePdf(){
       const air=(e.pi!=null&&e.pf!=null)?e.pi-e.pf:'';
       const row=[];
       if(i===0) row.push({content:t.nome||'-',rowSpan:els.length,styles:{fontStyle:'bold',fontSize:11,valign:'middle'}});
-      row.push(String(e.num||''),e.nome||'',e.pi==null?'':String(e.pi),e.he||'');
+      row.push(String(e.num||''),e.nome||'',e.arica||'',e.pi==null?'':String(e.pi),e.he||'');
       if(i===0) row.push({content:t.local||'',rowSpan:els.length,styles:{valign:'middle'}});
       const rr=realRate(e);
       row.push(e.heTs?hm(new Date(e.heTs+occ.intervalo*60000)):'',e.pf==null?'':String(e.pf),String(air),rr==null?'':fmtRate(rr),e.hs||'',(e.heTs&&e.hsTs)?fmtDur(e.hsTs-e.heTs):'');
       body.push(row); meta.push(e);
     });
   });
-  if(!body.length) body.push([{content:'Sem elementos registados.',colSpan:12,styles:{halign:'center',textColor:[90,103,120]}}]);
+  if(!body.length) body.push([{content:'Sem elementos registados.',colSpan:13,styles:{halign:'center',textColor:[90,103,120]}}]);
   const colorFor=(cls)=>({'p-ok':[[223,243,231],[28,124,71]],'p-warn':[[255,241,204],[169,111,0]],'p-bad':[[253,227,231],[200,16,46]]})[cls];
   doc.autoTable({
     startY:52, margin:{left:M,right:M,bottom:16},
-    head:[['Equipa','N.º','Nome','Pressão inicial (bar)','Hora entrada','Localização','Saída previsível','Pressão final (bar)','Ar consumido (bar)','Consumo (bar/min)','Hora saída','Tempo intervenção']],
+    head:[['Equipa','N.º','Nome','ARICA / garrafa','Pressão inicial (bar)','Hora entrada','Localização','Saída previsível','Pressão final (bar)','Ar consumido (bar)','Consumo (bar/min)','Hora saída','Tempo intervenção']],
     body, theme:'grid',
-    styles:{font:'helvetica',fontSize:9.5,cellPadding:2,lineColor:[190,198,208],lineWidth:0.2,textColor:[23,32,43],valign:'middle'},
+    styles:{font:'helvetica',fontSize:9,cellPadding:1.8,lineColor:[190,198,208],lineWidth:0.2,textColor:[23,32,43],valign:'middle'},
     headStyles:{fillColor:[46,59,76],textColor:255,fontStyle:'bold',fontSize:8.5,halign:'center',valign:'middle'},
-    columnStyles:{0:{cellWidth:18,halign:'center'},1:{cellWidth:11,halign:'center'},2:{cellWidth:44},3:{halign:'right',fontStyle:'bold'},4:{halign:'center'},6:{halign:'center'},7:{halign:'right',fontStyle:'bold'},8:{halign:'right'},9:{halign:'right'},10:{halign:'center'},11:{halign:'center'}},
+    columnStyles:{0:{cellWidth:17,halign:'center'},1:{cellWidth:10,halign:'center'},2:{cellWidth:38},3:{cellWidth:24,halign:'center'},4:{halign:'right',fontStyle:'bold'},5:{halign:'center'},7:{halign:'center'},8:{halign:'right',fontStyle:'bold'},9:{halign:'right'},10:{halign:'right'},11:{halign:'center'},12:{halign:'center'}},
     didParseCell:d=>{
       if(d.section!=='body') return;
       const raw=d.row.raw; if(!raw||raw.length<5) return;
       const e=meta[d.row.index]; if(!e) return;
       const hdr=d.column.index;
       let cls=null;
-      if(hdr===3) cls=pClassIn(e.pi); else if(hdr===7) cls=pClassOut(e.pf);
+      if(hdr===4) cls=pClassIn(e.pi); else if(hdr===8) cls=pClassOut(e.pf);
       const c=cls&&colorFor(cls); if(c){ d.cell.styles.fillColor=c[0]; d.cell.styles.textColor=c[1] }
     }
   });
@@ -839,7 +904,7 @@ async function makePdf(){
   // Resumo
   let tot=0,n=0; occ.equipas.forEach(t=>t.elems.forEach(e=>{if(hasData(e))n++; if(e.pi!=null&&e.pf!=null) tot+=e.pi-e.pf}));
   doc.setFontSize(9.5); doc.setTextColor(90,103,120);
-  doc.text(`Elementos registados: ${n}     Ar consumido total: ${tot} bar`,M,y); y+=6;
+  doc.text(`Elementos registados: ${n}     Ar consumido total: ${tot} bar`+(occ.fechada?`     Ocorrência fechada em ${new Date(occ.fechada.ts).toLocaleDateString('pt-PT')} às ${hm(new Date(occ.fechada.ts))}`:''),M,y); y+=6;
   // Observações
   if(occ.obs&&occ.obs.trim()){
     const lines=doc.splitTextToSize(occ.obs.trim(),W-2*M);
@@ -865,8 +930,45 @@ async function makePdf(){
     doc.text('© Prazeres · nprazeres2@gmail.com',W/2,H-6,{align:'center'});
     doc.text('Página '+i+' de '+pages,W-M,H-6,{align:'right'}); }
   const name='Controlo_Pressao_ARICAs_'+(occ.designacao||'ocorrencia').replace(/[^\w\-À-ÿ ]+/g,'').trim().replace(/\s+/g,'_').slice(0,50)+'_'+(occ.data||todayISO())+'.pdf';
-  try{ await dl.save({filename:name,data:doc.output('blob')}); toast('PDF gerado.','info') }
-  catch(e){ if(e&&e.code==='declined') return; if(e&&e.code==='rate_limited'){toast('Aguarde um momento e tente de novo.');return} toast('Não foi possível guardar o PDF.') }
+  return {blob:doc.output('blob'),name};
+}
+async function makePdf(){
+  toast('A gerar o PDF…','info');
+  const r=await buildPdf(); if(!r) return;
+  saveFile(r.name,r.blob); toast('PDF gerado.','info');
+}
+const pdfCol=()=>firebase.firestore().collection('aricas_equipas').doc(teamCode).collection('pdfs');
+const blobToDataURL=b=>new Promise((res,rej)=>{const f=new FileReader();f.onload=()=>res(f.result);f.onerror=rej;f.readAsDataURL(b)});
+const dataURLToBlob=u=>{const [m,d]=u.split(',');const bin=atob(d);const a=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)a[i]=bin.charCodeAt(i);return new Blob([a],{type:(m.match(/:(.*?);/)||[])[1]||'application/pdf'})};
+async function storePdf(r){
+  if(!db) return 'offline';
+  try{
+    const u=await blobToDataURL(r.blob);
+    if(u.length>950000) return 'big';
+    await pdfCol().doc(occ.id).set({nome:r.name,designacao:occ.designacao||'',data:occ.data||'',criado:Date.now(),b64:u});
+    occ.pdfTs=Date.now(); commit(false); return 'ok';
+  }catch(e){ return 'err' }
+}
+let outPdf=null;
+async function openOut(){
+  renderSigPrint(); outPdf=null;
+  $('#oShare').disabled=true; $('#oPdf').disabled=true;
+  const info=$('#oInfo'); info.className='oinfo'; info.textContent='A preparar o PDF…';
+  $('#ovOut').classList.add('on');
+  const r=await buildPdf();
+  if(!r){ info.className='oinfo bad'; info.textContent='Não foi possível gerar o PDF (é preciso internet na primeira vez). Pode usar Imprimir.'; return }
+  outPdf=r; $('#oShare').disabled=false; $('#oPdf').disabled=false;
+  if(occ.pdfTs&&occ.fechada&&occ.pdfTs>=occ.fechada.ts){ info.className='oinfo ok'; info.textContent='PDF pronto. Já está guardado no Firebase.'; return }
+  info.textContent='PDF pronto. A guardar no Firebase…';
+  const st=await storePdf(r);
+  if(st==='ok'){ info.className='oinfo ok'; info.textContent='PDF pronto e guardado no Firebase (Ocorrências anteriores > PDF).' }
+  else { info.className='oinfo bad'; info.textContent=st==='offline'?'PDF pronto. Não ficou guardado no Firebase: este dispositivo não está sincronizado. Volte a abrir esta janela com sincronização para o guardar.':(st==='big'?'PDF pronto, mas é demasiado grande para guardar no Firebase.':'PDF pronto. Não foi possível guardar no Firebase; tente de novo mais tarde.') }
+}
+async function sharePdf(r){
+  const f=new File([r.blob],r.name,{type:'application/pdf'});
+  if(navigator.canShare&&navigator.canShare({files:[f]})){
+    try{ await navigator.share({files:[f],title:r.name}) }catch(e){ if(e&&e.name!=='AbortError'){ saveFile(r.name,r.blob); toast('Não foi possível partilhar; o PDF foi descarregado.') } }
+  } else { saveFile(r.name,r.blob); toast('Este dispositivo não permite partilhar diretamente. O PDF foi descarregado: envie-o por WhatsApp ou email a partir dos ficheiros.') }
 }
 window.addEventListener('beforeprint',renderSigPrint);
 
@@ -878,8 +980,8 @@ function renderHist(){
     const n=o.equipas.reduce((a,t)=>a+t.elems.filter(e=>e.nome||e.he).length,0);
     const a=o.equipas.reduce((a,t)=>a+t.elems.filter(e=>e.he&&!e.hs).length,0);
     const d=o.data?new Date(o.data+'T00:00').toLocaleDateString('pt-PT'):'';
-    return `<li data-id="${o.id}"><div><b>${esc(o.designacao||'Sem designação')}</b>${o.id===curId?' <span class="cur">aberta</span>':''}<small>${d}${o.cos?', COS '+esc(o.cos):''}, ${n} elemento(s)${a?', '+a+' em intervenção':''}</small></div>
-      <button class="btn" data-h="open">Abrir</button><button class="btn danger" data-h="del">Eliminar</button></li>`;
+    return `<li data-id="${o.id}"><div><b>${esc(o.designacao||'Sem designação')}</b>${o.id===curId?' <span class="cur">em ecrã</span>':''}${o.fechada?' <span class="fech">fechada</span>':''}<small>${d}${o.cos?', COS '+esc(o.cos):''}, ${n} elemento(s)${a?', '+a+' em intervenção':''}</small></div>
+      ${o.pdfTs?'<button class="btn" data-h="pdf">PDF</button>':''}<button class="btn" data-h="open">Abrir</button><button class="btn danger" data-h="del">Eliminar</button></li>`;
   }).join('')||'<li>Sem ocorrências registadas.</li>';
 }
 $('#bHist').onclick=()=>{renderHist();$('#ovHist').classList.add('on');const b=$('#ovHist [data-close]');b&&b.focus()};
@@ -887,6 +989,13 @@ $('#ovHist').addEventListener('click',async ev=>{
   if(ev.target===ev.currentTarget||ev.target.closest('[data-close]')){$('#ovHist').classList.remove('on');return}
   const b=ev.target.closest('[data-h]'); if(!b) return; const id=b.closest('li').dataset.id; const o=store[id]; if(!o) return;
   if(b.dataset.h==='open'){curId=id;occ=o;saveLocal();render();$('#ovHist').classList.remove('on')}
+  else if(b.dataset.h==='pdf'){
+    if(!db){ toast('Para descarregar o PDF guardado, o dispositivo tem de estar sincronizado e com internet.'); return }
+    try{ const s=await pdfCol().doc(id).get(); const d=s.exists&&s.data();
+      if(!d||!d.b64){ toast('PDF não encontrado no Firebase. Abra a ocorrência e gere-o de novo.'); return }
+      saveFile(d.nome||('ocorrencia_'+id+'.pdf'),dataURLToBlob(d.b64)); toast('PDF descarregado.','info');
+    }catch(e){ toast('Não foi possível obter o PDF. Verifique a ligação.') }
+  }
   else if(b.dataset.h==='del'){
     $('#ovHist').classList.remove('on');
     const ok=await ask(`Eliminar definitivamente a ocorrência "${o.designacao||'Sem designação'}"?`,'Eliminar');
@@ -910,7 +1019,7 @@ function ask(msg,okLabel){
     $('#aYes').onclick=()=>done(true); $('#aNo').onclick=()=>done(false);
   });
 }
-document.addEventListener('keydown',ev=>{if(ev.key==='Escape'){if($('#ovAsk').classList.contains('on'))$('#aNo').click();else {$('#ovHist').classList.remove('on');$('#ovNames').classList.remove('on');$('#ovSign').classList.remove('on');$('#ovSync').classList.remove('on')}}});
+document.addEventListener('keydown',ev=>{if(ev.key==='Escape'){if($('#ovAsk').classList.contains('on'))$('#aNo').click();else {$('#ovHist').classList.remove('on');$('#ovNames').classList.remove('on');$('#ovSign').classList.remove('on');$('#ovSync').classList.remove('on');$('#ovOut').classList.remove('on');$('#ovStats').classList.remove('on')}}});
 
 /* ---------- Excel export ---------- */
 function loadXLSX(){
@@ -926,9 +1035,9 @@ async function exportXlsx(){
     [],
     ['Designação da Ocorrência:','',occ.designacao,'','','Comandante das Operações:',occ.cos],
     ['Tempo previsto (min):','',occ.intervalo],
-    ['Equipas','N.º','Nome','Pressão Inicial (bar)','Hora Entrada','Localização','Hora Saída Previsível','Pressão Final (bar)','Ar Consumido (bar)','Consumo (bar/min)','Hora Saída','Tempo Intervenção']
+    ['Equipas','N.º','Nome','ARICA / garrafa','Pressão Inicial (bar)','Hora Entrada','Localização','Hora Saída Previsível','Pressão Final (bar)','Ar Consumido (bar)','Consumo (bar/min)','Hora Saída','Tempo Intervenção']
   ];
-  const merges=[{s:{r:0,c:5},e:{r:0,c:11}},{s:{r:2,c:0},e:{r:2,c:1}}];
+  const merges=[{s:{r:0,c:5},e:{r:0,c:12}},{s:{r:2,c:0},e:{r:2,c:1}}];
   occ.equipas.forEach(t=>{
     const els=t.elems.filter(hasData); if(!els.length) return;
     const start=rows.length;
@@ -937,13 +1046,13 @@ async function exportXlsx(){
       const air=(e.pi!=null&&e.pf!=null)?e.pi-e.pf:'';
       const dur=(e.heTs&&e.hsTs)?(()=>{const m=Math.round((e.hsTs-e.heTs)/60000);return Math.floor(m/60)+':'+pad(m%60)})():'';
       const rr=realRate(e);
-      rows.push([i?'':t.nome,e.num===''?'':(isNaN(+e.num)?e.num:+e.num),e.nome,e.pi==null?'':e.pi,e.he,i?'':t.local,prev,e.pf==null?'':e.pf,air,rr==null?'':Math.round(rr*10)/10,e.hs,dur]);
+      rows.push([i?'':t.nome,e.num===''?'':(isNaN(+e.num)?e.num:+e.num),e.nome,e.arica||'',e.pi==null?'':e.pi,e.he,i?'':t.local,prev,e.pf==null?'':e.pf,air,rr==null?'':Math.round(rr*10)/10,e.hs,dur]);
     });
-    if(els.length>1){merges.push({s:{r:start,c:0},e:{r:start+els.length-1,c:0}});merges.push({s:{r:start,c:5},e:{r:start+els.length-1,c:5}})}
+    if(els.length>1){merges.push({s:{r:start,c:0},e:{r:start+els.length-1,c:0}});merges.push({s:{r:start,c:6},e:{r:start+els.length-1,c:6}})}
   });
   rows.push([]); rows.push(['Observações','',occ.obs||'']); rows.push([]); rows.push(['© Prazeres · nprazeres2@gmail.com']);
   const ws=XLSX.utils.aoa_to_sheet(rows); ws['!merges']=merges;
-  ws['!cols']=[{wch:10},{wch:6},{wch:24},{wch:14},{wch:12},{wch:18},{wch:18},{wch:14},{wch:14},{wch:16},{wch:11},{wch:16}];
+  ws['!cols']=[{wch:10},{wch:6},{wch:24},{wch:16},{wch:14},{wch:12},{wch:18},{wch:18},{wch:14},{wch:14},{wch:16},{wch:11},{wch:16}];
   const wb=XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb,ws,'Controlo');
   const out=XLSX.write(wb,{bookType:'xlsx',type:'array'});
   const name='Controlo_Pressao_ARICAs_'+(occ.designacao||'ocorrencia').replace(/[^\w\-À-ÿ ]+/g,'').trim().replace(/\s+/g,'_').slice(0,50)+'_'+(occ.data||todayISO())+'.xlsx';
@@ -958,9 +1067,15 @@ function saveAck(){try{localStorage.setItem('arica.ack',JSON.stringify([...acked
 let actx=null, lastBeep=0;
 function unlockAudio(){ try{ if(!actx){const A=window.AudioContext||window.webkitAudioContext; if(A) actx=new A()} if(actx&&actx.state==='suspended') actx.resume() }catch(e){} }
 document.addEventListener('pointerdown',unlockAudio,{passive:true}); document.addEventListener('keydown',unlockAudio);
-function beep(){
-  try{ navigator.vibrate&&navigator.vibrate([500,200,500,200,500]) }catch(e){}
+function beep(level){
+  const soft=level==='warn';
+  try{ navigator.vibrate&&navigator.vibrate(soft?[300,150,300]:[500,200,500,200,500]) }catch(e){}
   if(!actx) return;
+  if(soft){ try{ const t=actx.currentTime;
+    for(let i=0;i<2;i++){ const o=actx.createOscillator(), g=actx.createGain(); o.type='sine';
+      o.frequency.setValueAtTime(660,t+i*0.45); g.gain.setValueAtTime(0.0001,t+i*0.45);
+      g.gain.exponentialRampToValueAtTime(0.4,t+i*0.45+0.03); g.gain.exponentialRampToValueAtTime(0.0001,t+i*0.45+0.35);
+      o.connect(g).connect(actx.destination); o.start(t+i*0.45); o.stop(t+i*0.45+0.4) } }catch(e){} return }
   try{ const t=actx.currentTime;
     for(let i=0;i<3;i++){ const o=actx.createOscillator(), g=actx.createGain(); o.type='square';
       o.frequency.setValueAtTime(i%2?880:1320,t+i*0.35); g.gain.setValueAtTime(0.0001,t+i*0.35);
@@ -971,17 +1086,63 @@ function beep(){
 let alarmList=[];
 function checkAlarm(now){
   if(!occ) return; const list=[];
-  occ.equipas.forEach(t=>t.elems.forEach(e=>{const s=status(e,now); if(s.k==='alarm'&&!acked.has(e.id)) list.push({e,t,est:s.est})}));
+  if(occ.fechada){ $('#alarm').classList.remove('on'); alarmList=[]; return }
+  occ.equipas.forEach(t=>t.elems.forEach(e=>{
+    if(!(e.he&&!e.hs)) return;
+    const s=status(e,now); if(s.k==='idle'||s.k==='bad') return;
+    const who=(e.nome||'N.º '+e.num)+(t.nome?' ('+t.nome+')':'');
+    if(s.est!=null&&s.est<=alarmAt()&&!acked.has(e.id+':p80')) list.push({key:e.id+':p80',lvl:2,txt:`${who}: cerca de ${s.est} bar, mandar sair`});
+    if(s.rem!=null&&s.rem<=0){ if(!acked.has(e.id+':over')) list.push({key:e.id+':over',lvl:2,txt:`${who}: excedeu o tempo previsto (${fmtCountdown(s.rem)})`}) }
+    else if(s.rem!=null&&s.rem<=WARN_S&&!acked.has(e.id+':warn')) list.push({key:e.id+':warn',lvl:1,txt:`${who}: saída prevista em ${Math.max(1,Math.ceil(s.rem/60))} min`});
+  }));
+  list.sort((a,b)=>b.lvl-a.lvl);
   alarmList=list;
   const bar=$('#alarm');
   if(list.length){
-    $('#alarmTxt').textContent=list.map(x=>`${x.e.nome||'N.º '+x.e.num}${x.t.nome?' ('+x.t.nome+')':''}: cerca de ${x.est} bar`).join('; ')+'. Mandar sair.';
+    const urgent=list.some(x=>x.lvl===2);
+    bar.classList.toggle('warn',!urgent);
+    bar.querySelector('strong').textContent=urgent?'Alarme':'Aviso';
+    $('#alarmTxt').textContent=list.map(x=>x.txt).join('; ')+'.';
     bar.classList.add('on');
-    if(now-lastBeep>5000){lastBeep=now;beep()}
+    if(now-lastBeep>(urgent?5000:8000)){lastBeep=now;beep(urgent?'urgent':'warn')}
   } else bar.classList.remove('on');
 }
-$('#alarmOk').onclick=()=>{alarmList.forEach(x=>acked.add(x.e.id));saveAck();$('#alarm').classList.remove('on')};
-$('#bTest').onclick=()=>{unlockAudio();setTimeout(beep,50);toast('Se não ouviu o som, verifique o volume do dispositivo e o modo silêncio.','info')};
+$('#alarmOk').onclick=()=>{alarmList.forEach(x=>acked.add(x.key));saveAck();$('#alarm').classList.remove('on')};
+$('#bTest').onclick=()=>{unlockAudio();setTimeout(()=>beep('urgent'),50);toast('Se não ouviu o som, verifique o volume do dispositivo e o modo silêncio.','info')};
+
+/* ---------- estatísticas ---------- */
+function computeStats(){
+  const m={};
+  Object.values(store).forEach(o=>(o.equipas||[]).forEach(t=>(t.elems||[]).forEach(e=>{
+    const k=keyName(e.nome); if(!k||!e.heTs||!e.hsTs) return;
+    const s=m[k]=m[k]||{nome:normN(e.nome),n:0,rates:[],ms:0,air:0,last:0};
+    s.n++; s.ms+=Math.max(0,e.hsTs-e.heTs);
+    if(e.pi!=null&&e.pf!=null&&e.pf<e.pi) s.air+=e.pi-e.pf;
+    const r=realRate(e); if(r!=null) s.rates.push(r);
+    if(e.hsTs>s.last){ s.last=e.hsTs; s.nome=normN(e.nome) }
+  })));
+  return Object.values(m).sort((a,b)=>a.nome.localeCompare(b.nome,'pt'));
+}
+function renderStats(){
+  const rows=computeStats();
+  $('#statsBody').innerHTML=rows.length?rows.map(s=>{
+    const avg=s.rates.length?s.rates.reduce((a,x)=>a+x,0)/s.rates.length:null;
+    const mn=s.rates.length?Math.min(...s.rates):null, mx=s.rates.length?Math.max(...s.rates):null;
+    return `<tr><td>${esc(s.nome)}</td><td class="n">${s.n}</td><td class="n"><b>${avg==null?'—':fmtRate(avg)}</b>${s.rates.length&&s.rates.length<s.n?' <small style="color:var(--muted)">('+s.rates.length+')</small>':''}</td><td class="n">${mn==null?'—':fmtRate(mn)+' – '+fmtRate(mx)}</td><td class="n">${fmtDur(s.ms)}</td><td class="n">${s.air}</td><td>${new Date(s.last).toLocaleDateString('pt-PT')}</td></tr>`;
+  }).join(''):'<tr><td colspan="7" style="color:var(--muted)">Ainda não há intervenções concluídas (com hora de entrada e de saída).</td></tr>';
+}
+$('#bStats').onclick=()=>{ renderStats(); $('#ovStats').classList.add('on') };
+$('#ovStats').addEventListener('click',ev=>{ if(ev.target===ev.currentTarget||ev.target.closest('[data-close]')) $('#ovStats').classList.remove('on') });
+$('#stXls').onclick=async()=>{
+  try{ await loadXLSX() }catch(e){ toast('Não foi possível preparar o ficheiro Excel. Verifique a ligação à internet.'); return }
+  const rows=[['Estatísticas de consumo por elemento'],['Emitido em',new Date().toLocaleString('pt-PT')],[],['Nome','Intervenções','Consumo médio (bar/min)','Consumo mín. (bar/min)','Consumo máx. (bar/min)','Intervenções com consumo','Tempo total (min)','Ar total (bar)','Última intervenção']];
+  computeStats().forEach(s=>{const avg=s.rates.length?s.rates.reduce((a,x)=>a+x,0)/s.rates.length:'';
+    rows.push([s.nome,s.n,avg===''?'':Math.round(avg*10)/10,s.rates.length?Math.round(Math.min(...s.rates)*10)/10:'',s.rates.length?Math.round(Math.max(...s.rates)*10)/10:'',s.rates.length,Math.round(s.ms/60000),s.air,new Date(s.last).toLocaleDateString('pt-PT')])});
+  rows.push([]); rows.push(['© Prazeres · nprazeres2@gmail.com']);
+  const ws=XLSX.utils.aoa_to_sheet(rows); ws['!cols']=[{wch:26},{wch:12},{wch:20},{wch:18},{wch:18},{wch:22},{wch:16},{wch:12},{wch:16}];
+  const wb=XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb,ws,'Estatísticas');
+  saveFile('Estatisticas_ARICAs_'+todayISO()+'.xlsx',new Blob([XLSX.write(wb,{bookType:'xlsx',type:'array'})])); toast('Estatísticas exportadas.','info');
+};
 
 /* ---------- nomes guardados ---------- */
 let nomes=[]; try{nomes=JSON.parse(localStorage.getItem('arica.nomes')||'[]')||[]}catch(e){}
