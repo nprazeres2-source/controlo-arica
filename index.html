@@ -62,7 +62,7 @@ button,input,textarea{font:inherit;color:inherit}
 .warn span{font-weight:500}
 
 /* Occurrence */
-.occ{background:var(--surface);border:1px solid var(--line);padding:14px;display:grid;grid-template-columns:2fr 1.5fr 150px 120px;gap:12px}
+.occ{background:var(--surface);border:1px solid var(--line);padding:14px;display:grid;grid-template-columns:2fr 1.5fr 150px 110px 110px;gap:12px}
 .fld label{display:block;font-size:12.5px;color:var(--muted);margin-bottom:3px;font-weight:500}
 .fld input,.fld textarea{width:100%;background:var(--field);border:1px solid var(--line);border-radius:4px;padding:8px 10px;min-height:40px}
 .fld textarea{min-height:70px;resize:vertical}
@@ -93,7 +93,9 @@ button,input,textarea{font:inherit;color:inherit}
 .tstat b{color:var(--ink)}
 .tbtns{display:flex;gap:8px;flex-wrap:wrap;margin-left:auto}
 .scroll{overflow-x:auto}
-table{border-collapse:collapse;width:100%;min-width:1300px}
+table{border-collapse:collapse;width:100%;min-width:1400px}
+.pnr b{font-family:var(--cond);font-size:21px;font-variant-numeric:tabular-nums;display:block;line-height:1.1;color:var(--amber)}
+.pnr small{font-size:12px;color:var(--muted);white-space:nowrap}
 th{font-size:12.5px;color:var(--muted);font-weight:600;text-align:left;padding:8px 6px;border-bottom:1px solid var(--line);white-space:nowrap;background:var(--surface)}
 td{padding:6px;border-bottom:1px solid var(--line);vertical-align:middle}
 tr:last-child td{border-bottom:none}
@@ -170,6 +172,54 @@ body.closed td input:disabled,body.closed .occ input:disabled,body.closed textar
 .alarm.on{display:flex}
 .alarm.warn{background:#8A5A00}
 .alarm.warn button{color:#8A5A00}
+.ac-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);gap:16px}
+@media (max-width:720px){.ac-grid{grid-template-columns:minmax(0,1fr)}}
+.ac-in{display:grid;gap:12px;align-content:start}
+.ac-in label{display:block;font-weight:600;font-size:14px;margin-bottom:4px}
+.ac-row{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.ac-num{width:96px;font-family:var(--cond);font-size:24px;font-weight:600;text-align:right;font-variant-numeric:tabular-nums;background:var(--field);border:1px solid var(--line);border-radius:4px;padding:3px 8px;min-height:44px}
+.ac-u{color:var(--muted);font-weight:600;font-size:14px}
+.ac-chip{border:1px solid var(--line);background:var(--surface);border-radius:4px;padding:5px 10px;min-height:40px;cursor:pointer;font-weight:600;font-size:14px}
+.ac-chip[aria-pressed="true"]{background:var(--steel);color:var(--on-steel);border-color:var(--steel)}
+.ac-in input[type=range]{width:100%;accent-color:var(--red)}
+.ac-in input[type=time]{background:var(--field);border:1px solid var(--line);border-radius:4px;padding:5px 8px;min-height:44px;font-family:var(--cond);font-size:19px;font-weight:600}
+.ac-in small{color:var(--muted);font-size:12.5px;display:block;margin-top:3px}
+.ac-out{display:grid;gap:12px;align-content:start}
+.ac-big{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line);border:1px solid var(--line)}
+.ac-big>div{background:var(--surface);padding:10px 12px}
+.ac-big .k{font-size:13px;color:var(--muted);font-weight:500}
+.ac-big .v{font-family:var(--cond);font-weight:700;font-size:44px;line-height:1;font-variant-numeric:tabular-nums}
+.ac-big .v small{font-size:18px;color:var(--muted);margin-left:3px}
+.ac-big .s{font-size:12.5px;color:var(--muted);margin-top:3px}
+.ac-big .eff{background:var(--green-bg)} .ac-big .eff .v{color:var(--green)}
+.ac-big .eff.zero{background:var(--red-bg)} .ac-big .eff.zero .v{color:var(--red)}
+.ac-bar{display:flex;height:28px;border:1px solid var(--line);overflow:hidden;font-size:12.5px;font-weight:600}
+.ac-bar span{display:flex;align-items:center;justify-content:center;white-space:nowrap;overflow:hidden;min-width:0}
+.ac-bar .w{background:var(--green-bg);color:var(--green)} .ac-bar .r{background:var(--amber-bg);color:var(--amber)}
+.ac-times{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.ac-times div{border:1px solid var(--line);padding:8px 10px}
+.ac-times b{display:block;font-family:var(--cond);font-size:28px;line-height:1.05;font-variant-numeric:tabular-nums}
+.ac-times span{font-size:12.5px;color:var(--muted)}
+.ac-times .ret b{color:var(--green)} .ac-times .lim b{color:var(--red)}
+.ac-steps{list-style:none;margin:10px 0 0;padding:0;display:grid;gap:10px;counter-reset:s}
+.ac-steps li{display:grid;grid-template-columns:28px minmax(0,1fr);gap:8px}
+.ac-steps li::before{counter-increment:s;content:counter(s);width:28px;height:28px;border-radius:50%;background:var(--steel);color:var(--on-steel);display:grid;place-items:center;font-family:var(--cond);font-weight:700}
+.ac-steps h3{margin:3px 0;font-size:14.5px}
+.ac-f{font-family:var(--cond);font-size:17px;font-variant-numeric:tabular-nums;background:var(--field);border:1px solid var(--line);padding:4px 8px;display:inline-block;max-width:100%;overflow-wrap:anywhere;margin-top:2px}
+.ac-steps p{margin:4px 0 0;color:var(--muted);font-size:13px}
+.ac-tab{width:100%;border-collapse:collapse;min-width:420px;margin-top:6px;font-variant-numeric:tabular-nums}
+.ac-tab th,.ac-tab td{padding:6px 8px;border-bottom:1px solid var(--line);text-align:right}
+.ac-tab th:first-child,.ac-tab td:first-child{text-align:left}
+.ac-tab th{font-size:12.5px;color:var(--muted)}
+.ac-tab td{font-family:var(--cond);font-size:17px}
+.ac-tab tr.cur td{background:var(--green-bg);font-weight:700}
+.ac-tab tr.low td{color:var(--red)}
+.ac-sec{font-family:var(--cond);font-size:19px;margin:18px 0 0}
+.ac-pnr{display:flex;align-items:baseline;justify-content:space-between;gap:8px;flex-wrap:wrap;border:1px solid var(--line);border-left:5px solid var(--amber);background:var(--amber-bg);padding:8px 12px}
+.ac-pnr div{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.ac-pnr span{font-weight:600;font-size:14px}
+.ac-pnr b{font-family:var(--cond);font-size:30px;line-height:1;color:var(--amber);font-variant-numeric:tabular-nums}
+.ac-pnr small{color:var(--muted);font-family:var(--cond);font-size:16px}
 .stats{width:100%;min-width:640px}
 .stats td,.stats th{padding:7px 8px;font-size:14px}
 .stats td.n{text-align:right;font-variant-numeric:tabular-nums}
@@ -258,6 +308,7 @@ body.closed td input:disabled,body.closed .occ input:disabled,body.closed textar
     <div class="fld"><label for="oDes">Designação da ocorrência</label><input id="oDes" data-o="designacao" placeholder="ex.: Exercício Aeroporto"></div>
     <div class="fld"><label for="oCos">Comandante das Operações</label><input id="oCos" data-o="cos" placeholder="Nome do COS"></div>
     <div class="fld"><label for="oDat">Data</label><input id="oDat" type="date" data-o="data"></div>
+    <div class="fld"><label for="oVol">Volume garrafa (L)</label><input id="oVol" type="number" min="1" max="15" step="0.1" inputmode="decimal" data-o="volume"></div>
     <div class="fld"><label for="oAla">Alarme a (bar)</label><input id="oAla" type="number" min="50" max="200" step="5" inputmode="numeric" data-o="alarme"></div>
   </section>
 
@@ -265,6 +316,7 @@ body.closed td input:disabled,body.closed .occ input:disabled,body.closed textar
     <button class="btn primary" id="bNew">Nova ocorrência</button>
     <button class="btn" id="bHist">Ocorrências anteriores</button>
     <button class="btn" id="bNames">Nomes guardados</button>
+    <button class="btn" id="bCalc">Calculadora de autonomia</button>
     <button class="btn" id="bStats">Estatísticas</button>
     <button class="btn" id="bTest">Testar alarme</button>
     <span class="spacer"></span>
@@ -324,6 +376,51 @@ body.closed td input:disabled,body.closed .occ input:disabled,body.closed textar
     <p style="margin-top:0;color:var(--muted)">As assinaturas estão registadas e os campos bloqueados.</p>
     <div class="oinfo" id="oInfo">A preparar o PDF…</div>
     <div class="actions"><button class="btn" data-close>Fechar</button><span class="spacer"></span><button class="btn" id="oPrint">Imprimir</button><button class="btn" id="oShare" disabled>Partilhar PDF</button><button class="btn primary" id="oPdf" disabled>Descarregar PDF</button></div>
+  </div>
+</div>
+<div class="ov" id="ovCalc" role="dialog" aria-modal="true" aria-labelledby="acT">
+  <div class="dlg" style="max-width:900px">
+    <h2 id="acT">Calculadora de autonomia</h2>
+    <div class="ac-grid">
+      <div class="ac-in">
+        <div><label for="acVol">Volume da garrafa</label>
+          <div class="ac-row"><input id="acVol" class="ac-num" type="number" inputmode="decimal" min="1" max="20" step="0.1" value="6"><span class="ac-u">L</span>
+          <button class="ac-chip" type="button" data-acvol="6">6 L</button><button class="ac-chip" type="button" data-acvol="6.8">6,8 L</button><button class="ac-chip" type="button" data-acvol="9">9 L</button></div></div>
+        <div><label for="acPr">Pressão lida no manómetro</label>
+          <div class="ac-row"><input id="acPr" class="ac-num" type="number" inputmode="numeric" min="0" max="350" step="5" value="300"><span class="ac-u">bar</span></div>
+          <input id="acPrR" type="range" min="100" max="320" step="5" value="300" aria-label="Pressão em bar">
+          <div class="cerr" id="acPrW" hidden>Com 160 bar ou menos não deve entrar.</div></div>
+        <div><label for="acCon">Consumo de ar</label>
+          <div class="ac-row"><input id="acCon" class="ac-num" type="number" inputmode="numeric" min="10" max="150" step="1" value="40"><span class="ac-u">L/min</span><button class="ac-chip" type="button" data-accon="40">40 (referência)</button></div>
+          <small>40 L/min é o valor de referência. O consumo real muda com a pessoa e o esforço.</small></div>
+        <div><label for="acRes">Reserva</label>
+          <div class="ac-row"><input id="acRes" class="ac-num" type="number" inputmode="numeric" min="0" max="30" step="1" value="10"><span class="ac-u">min</span></div></div>
+        <div><label for="acH">Hora de entrada (opcional)</label>
+          <div class="ac-row"><input id="acH" type="time"><button class="ac-chip" type="button" id="acNow">Agora</button><button class="ac-chip" type="button" id="acClr">Limpar</button></div></div>
+      </div>
+      <div class="ac-out" aria-live="polite">
+        <div class="ac-big">
+          <div><div class="k">Tempo total de ar</div><div class="v"><span id="acTot">45</span><small>min</small></div><div class="s">até a garrafa ficar vazia</div></div>
+          <div class="eff" id="acEffBox"><div class="k">Tempo efetivo de trabalho</div><div class="v"><span id="acEff">35</span><small>min</small></div><div class="s">até iniciar o retorno</div></div>
+        </div>
+        <div class="ac-bar" id="acBar" role="img"><span class="w" id="acBW"></span><span class="r" id="acBR"></span></div>
+        <div class="ac-pnr"><div><span>Ponto de Não Retorno</span><b id="acPnr">175 bar</b></div><small id="acPnrF">(300 + 50) ÷ 2</small></div>
+        <div class="ac-times" id="acTimes" hidden><div class="ret"><b id="acTRet">--:--</b><span>Iniciar o retorno</span></div><div class="lim"><b id="acTLim">--:--</b><span>Fim teórico do ar</span></div></div>
+        <div class="oinfo" id="acNote"></div>
+      </div>
+    </div>
+    <h3 class="ac-sec">Cálculo passo a passo</h3>
+    <ol class="ac-steps">
+      <li><div><h3>Ar disponível na garrafa</h3><div class="ac-f">Ar (L) = Volume × Pressão = <span id="acS1"></span></div></div></li>
+      <li><div><h3>Tempo total de ar</h3><div class="ac-f">Tempo total (min) = Ar ÷ Consumo = <span id="acS2"></span></div><p>Até a garrafa ficar vazia. Não é tempo de trabalho.</p></div></li>
+      <li><div><h3>Tempo efetivo de trabalho</h3><div class="ac-f">Tempo efetivo (min) = Tempo total − Reserva = <span id="acS3"></span></div><p>Tempo de trabalho até iniciar a saída.</p></div></li>
+      <li><div><h3>A reserva em ar e em pressão</h3><div class="ac-f">Reserva (L) = Reserva (min) × Consumo = <span id="acS4a"></span></div><br><div class="ac-f">Reserva (bar) = Reserva (L) ÷ Volume = <span id="acS4b"></span></div><p>Pressão no manómetro equivalente aos minutos de reserva.</p></div></li>
+      <li><div><h3>Ponto de Não Retorno (PNR)</h3><div class="ac-f">PNR (bar) = (Pressão inicial + 50) ÷ 2 = <span id="acS5"></span></div><p>Pressão a que o elemento deve iniciar o retorno: metade do ar acima dos 50 bar de reserva fica para a entrada, a outra metade para a saída.</p></div></li>
+    </ol>
+    <h3 class="ac-sec">Referência rápida</h3>
+    <p style="margin:2px 0 0;color:var(--muted);font-size:13px" id="acCap"></p>
+    <div class="scroll"><table class="ac-tab"><thead><tr><th>Pressão inicial</th><th>PNR</th><th>Ar (L)</th><th>Tempo total</th><th>Tempo efetivo</th></tr></thead><tbody id="acBody"></tbody></table></div>
+    <div class="actions"><span class="spacer"></span><button class="btn" data-close>Fechar</button></div>
   </div>
 </div>
 <div class="ov" id="ovStats" role="dialog" aria-modal="true" aria-labelledby="stT">
@@ -402,7 +499,7 @@ function nextNum(o){let m=0;(o||occ).equipas.forEach(t=>t.elems.forEach(e=>{cons
 function blankTeam(o){const t={id:uid('t'),nome:'',local:'',elems:[]};for(let i=0;i<2;i++){const n=nextNumWith(o,t);t.elems.push(blankElem(n))}return t}
 function nextNumWith(o,t){let m=0;o.equipas.concat([t]).forEach(x=>x.elems.forEach(e=>{const n=parseInt(e.num,10);if(n>m)m=n}));return m+1}
 function newOcc(prevInt){
-  const o={id:uid('o'),designacao:'',cos:'',data:todayISO(),intervalo:prevInt||40,alarme:(occ&&occ.alarme)||80,obs:'',equipas:[],criado:Date.now(),atualizado:Date.now()};
+  const o={id:uid('o'),designacao:'',cos:'',data:todayISO(),intervalo:prevInt||40,alarme:(occ&&occ.alarme)||80,volume:(occ&&occ.volume)||6,retorno:(occ&&occ.retorno)||175,obs:'',equipas:[],criado:Date.now(),atualizado:Date.now()};
   o.equipas.push(blankTeam(o));
   return o;
 }
@@ -448,6 +545,25 @@ function rateFor(e){
   return {r:REF_RATE,src:'referência'};
 }
 const fmtRate=r=>r.toFixed(1).replace('.',',');
+const volL=()=>+occ.volume||6;
+const PNR_RES=50;
+/* Ponto de Não Retorno = (pressão inicial + 50 bar de reserva) ÷ 2 */
+const pnrOf=e=>e&&e.pi!=null?(e.pi+PNR_RES)/2:null;
+const fmtBar=x=>{const r=Math.round(x*10)/10;return (Number.isInteger(r)?String(r):r.toFixed(1)).replace('.',',')};
+const fmtL=x=>Math.round(x).toLocaleString('pt-PT');
+/* tempo até ao Ponto de Não Retorno: (pressão de referência − PNR) × volume ÷ consumo (L/min) */
+function returnInfo(e,now){
+  if(e.pi==null) return null;
+  const rf=rateFor(e), lpm=rf.r*volL();
+  if(e.he&&!e.hs&&e.heTs){
+    const useLr=e.lr!=null&&e.lrTs&&e.lrTs>=e.heTs;
+    const base=useLr?e.lr:e.pi, t0=useLr?e.lrTs:e.heTs;
+    const pn=pnrOf(e), ts=t0+Math.max(0,base-pn)*volL()/lpm*60000;
+    return {rf,lpm,ts,pn,rem:Math.round((ts-now)/1000),below:base<=pn};
+  }
+  const pn=pnrOf(e);
+  return {rf,lpm,pn,min:Math.max(0,e.pi-pn)*volL()/lpm,below:e.pi<=pn};
+}
 function estimate(e,now){
   if(!e.heTs||e.pi==null) return null;
   const useLr=e.lr!=null&&e.lrTs&&e.lrTs>=e.heTs;
@@ -536,7 +652,7 @@ document.addEventListener('focusout',()=>setTimeout(()=>{if(deferRender&&!editin
 
 /* ---------- render ---------- */
 function render(){
-  if(!occ.intervalo)occ.intervalo=40; if(occ.alarme==null)occ.alarme=80; histDirty=true;
+  if(!occ.intervalo)occ.intervalo=40; if(occ.alarme==null)occ.alarme=80; if(!occ.volume)occ.volume=6; if(!occ.retorno)occ.retorno=175; histDirty=true;
   document.querySelectorAll('[data-o]').forEach(i=>{const v=occ[i.dataset.o];i.value=v==null?'':v});
   $('#teams').innerHTML=occ.equipas.map(teamHTML).join('');
   document.querySelectorAll('#teams tr.row').forEach(updateRow);
@@ -564,7 +680,7 @@ function teamHTML(t,i){
     </div>
   </div>
   <div class="scroll"><table>
-    <thead><tr><th>N.º</th><th>Nome</th><th>ARICA / garrafa</th><th>Pressão inicial</th><th>Hora de entrada</th><th>Saída previsível</th><th>Pressão estimada / consumo</th><th>Pressão final</th><th>Ar consumido</th><th>Hora de saída</th><th>Tempo de intervenção</th><th><span class="noprint" style="position:absolute;left:-9999px">Remover</span></th></tr></thead>
+    <thead><tr><th>N.º</th><th>Nome</th><th>ARICA / garrafa</th><th>Pressão inicial</th><th title="Ponto de Não Retorno = (pressão inicial + 50) ÷ 2">PNR</th><th>Hora de entrada</th><th>Saída previsível</th><th>Pressão estimada / consumo</th><th>Pressão final</th><th>Ar consumido</th><th>Hora de saída</th><th>Tempo de intervenção</th><th><span class="noprint" style="position:absolute;left:-9999px">Remover</span></th></tr></thead>
     <tbody>${t.elems.map(e=>rowHTML(e)).join('')}</tbody>
   </table></div>
 </section>`;
@@ -576,6 +692,7 @@ function rowHTML(e){
   <td><input data-f="nome" list="nomesList" value="${esc(e.nome)}" placeholder="Nome" aria-label="Nome" autocomplete="off" style="min-width:150px"></td>
   <td><input data-f="arica" value="${esc(e.arica||'')}" placeholder="ex.: A12 / G345" aria-label="Número do aparelho ou garrafa" autocomplete="off" style="min-width:110px"></td>
   <td><input class="pr" data-f="pi" value="${v(e.pi)}" inputmode="numeric" aria-label="Pressão inicial em bar" placeholder="bar"></td>
+  <td class="pnr"><b data-d="pnr">—</b><small data-d="pnrF">(Pi + 50) ÷ 2</small></td>
   <td><div class="tc"><input type="time" data-f="he" value="${esc(e.he)}" aria-label="Hora de entrada"><button class="now in" data-act="in-now">Entra</button></div></td>
   <td class="prev"><b data-d="prev">—</b><small data-d="cd"></small></td>
   <td class="est"><b data-d="est">—</b><small data-d="estInfo"></small><input data-f="lr" inputmode="numeric" placeholder="Leitura" aria-label="Leitura de pressão via rádio"></td>
@@ -595,6 +712,9 @@ function updateRow(tr){
   const {t,e}=ctxOf(tr); if(!e) return;
   const pi=tr.querySelector('[data-f=pi]'), pf=tr.querySelector('[data-f=pf]');
   pi.className='pr '+pClassIn(e.pi); pf.className='pr '+pClassOut(e.pf);
+  const pn=pnrOf(e);
+  tr.querySelector('[data-d=pnr]').textContent=pn==null?'—':fmtBar(pn)+' bar';
+  tr.querySelector('[data-d=pnrF]').textContent=pn==null?'(Pi + 50) ÷ 2':'('+e.pi+' + 50) ÷ 2';
   const prev=tr.querySelector('[data-d=prev]');
   prev.textContent=e.heTs?hm(new Date(e.heTs+occ.intervalo*60000)):'—';
   const air=(e.pi!=null&&e.pf!=null)?e.pi-e.pf:null;
@@ -619,12 +739,16 @@ function paintStatus(tr,e,now){
   const est=tr.querySelector('[data-d=est]'), info=tr.querySelector('[data-d=estInfo]');
   if(s.est!=null){
     est.textContent=s.est+' bar'; est.className=s.est<=alarmAt()?'c-over':(s.est<=alarmAt()+40?'c-warn':'c-ok');
-    const rf=rateFor(e);
-    info.textContent=((e.lr!=null&&e.lrTs>=e.heTs)?('leitura '+e.lr+' bar às '+hm(new Date(e.lrTs))+', '):'')+fmtRate(rf.r)+' bar/min ('+rf.src+')';
+    const ri=returnInfo(e,now), rf=ri.rf;
+    const rt=ri.below?'abaixo do PNR: iniciar retorno':(ri.rem<=0?'PNR atingido às '+hm(new Date(ri.ts)):'PNR às '+hm(new Date(ri.ts))+' ('+fmtCountdown(ri.rem)+')');
+    info.innerHTML=esc(((e.lr!=null&&e.lrTs>=e.heTs)?('leitura '+e.lr+' bar às '+hm(new Date(e.lrTs))+', '):'')+fmtRate(rf.r)+' bar/min ≈ '+fmtL(ri.lpm)+' L/min ('+rf.src+')')+'<br><span class="'+(ri.below||ri.rem<=0?'c-over':(ri.rem<=WARN_S?'c-warn':'c-ok'))+'">'+esc(rt)+'</span>';
   }else if(s.k==='out'){
     const r=realRate(e); est.className='c-mut';
     if(r!=null){ est.textContent=fmtRate(r)+' bar/min'; info.textContent='consumo real' }
     else { est.textContent='—'; info.textContent=e.pf==null?'falta pressão final':'' }
+  }else if(e.pi!=null&&!e.he){
+    const ri=returnInfo(e,now); est.className='c-mut'; est.textContent=ri.below?'—':'≈ '+Math.round(ri.min)+' min';
+    info.textContent=ri.below?'sem margem até ao PNR':'até ao PNR, a '+fmtL(ri.lpm)+' L/min ('+ri.rf.src+')';
   }else{ est.textContent='—'; est.className=''; info.textContent=''; }
   return s;
 }
@@ -668,6 +792,8 @@ document.addEventListener('input',ev=>{
   if(occ.fechada&&(i.dataset.o||i.dataset.tf||i.dataset.f)) return;
   if(i.dataset.o){ let v=i.value, k=i.dataset.o;
     if(k==='intervalo') return;
+    if(k==='volume'){ v=parseFloat(String(v).replace(',','.')); if(!(v>0)) return; occ.volume=v; document.querySelectorAll('#teams tr.row').forEach(updateRow); commit(false); tick(); return }
+    if(k==='retorno'){ v=toInt(v); if(!v||v<=0) return; occ.retorno=v; document.querySelectorAll('#teams tr.row').forEach(updateRow); commit(false); tick(); return }
     if(k==='alarme'){ v=toInt(v); if(!v||v<=0) return; occ[k]=v; document.querySelectorAll('#teams tr.row').forEach(updateRow); commit(false); tick(); return }
     occ[k]=v; commit(false); return; }
   if(i.dataset.tf){ const {t}=ctxOf(i); if(!t)return; t[i.dataset.tf]=i.value; commit(false); return; }
@@ -693,7 +819,7 @@ document.addEventListener('change',ev=>{
     const v=toInt(i.value); i.value='';
     if(v==null) return;
     if(!(e.he&&!e.hs)){ toast('A leitura só se aplica a elementos em intervenção.'); return }
-    e.lr=v; e.lrTs=Date.now(); if(v>alarmAt()) acked.delete(e.id+':p80'), saveAck();
+    e.lr=v; e.lrTs=Date.now(); if(v>alarmAt()) acked.delete(e.id+':p80'); if(v>pnrOf(e)) acked.delete(e.id+':ret'); saveAck();
     toast(`${e.nome||'Elemento'}: leitura de ${v} bar registada.`,'info');
   }else if(f==='nome'){
     addName(e.nome);
@@ -711,7 +837,7 @@ function canEnter(e){
   if(e.pi<=MIN_ENTRY){toast(`Entrada bloqueada: ${e.nome||'elemento '+e.num} tem ${e.pi} bar (mínimo acima de ${MIN_ENTRY} bar).`);return false}
   return true;
 }
-function setEntry(e,now){e.he=hm(now);e.heTs=now.getTime();e.hs='';e.hsTs=null;e.lr=null;e.lrTs=null;['p80','over','warn'].forEach(k=>acked.delete(e.id+':'+k));saveAck()}
+function setEntry(e,now){e.he=hm(now);e.heTs=now.getTime();e.hs='';e.hsTs=null;e.lr=null;e.lrTs=null;['p80','over','warn','ret'].forEach(k=>acked.delete(e.id+':'+k));saveAck()}
 function setExit(e,now){e.hs=hm(now);e.hsTs=now.getTime()}
 
 document.addEventListener('click',async ev=>{
@@ -861,8 +987,8 @@ async function buildPdf(){
   doc.setFont('helvetica','normal'); doc.setTextColor(23,32,43);
   doc.text('Não esquecer a reserva de 50 bar (± 10 min).   Não deixar entrar com pressão igual ou inferior a 160 bar.',M+24,33.3);
   // Dados da ocorrência
-  const info=[['Designação da ocorrência',occ.designacao||'-'],['Comandante das Operações',occ.cos||'-'],['Data',dStr||'-'],['Tempo previsto',(occ.intervalo||40)+' min'],['Alarme',(occ.alarme||80)+' bar']];
-  const colW=[90,80,32,32,30]; let x=M;
+  const info=[['Designação da ocorrência',occ.designacao||'-'],['Comandante das Operações',occ.cos||'-'],['Data',dStr||'-'],['Tempo previsto',(occ.intervalo||40)+' min'],['Garrafa',String(occ.volume||6).replace('.',',')+' L'],['PNR','(Pi + 50) ÷ 2'],['Alarme',(occ.alarme||80)+' bar']];
+  const colW=[78,70,26,28,24,24,24]; let x=M;
   info.forEach((it,i)=>{ doc.setFontSize(8); doc.setTextColor(90,103,120); doc.text(it[0],x,42);
     doc.setFontSize(11); doc.setTextColor(23,32,43); doc.setFont('helvetica','bold');
     doc.text(doc.splitTextToSize(it[1],colW[i]-3)[0],x,47.5); doc.setFont('helvetica','normal'); x+=colW[i]+2 });
@@ -874,29 +1000,29 @@ async function buildPdf(){
       const air=(e.pi!=null&&e.pf!=null)?e.pi-e.pf:'';
       const row=[];
       if(i===0) row.push({content:t.nome||'-',rowSpan:els.length,styles:{fontStyle:'bold',fontSize:11,valign:'middle'}});
-      row.push(String(e.num||''),e.nome||'',e.arica||'',e.pi==null?'':String(e.pi),e.he||'');
+      row.push(String(e.num||''),e.nome||'',e.arica||'',e.pi==null?'':String(e.pi),e.pi==null?'':fmtBar(pnrOf(e)),e.he||'');
       if(i===0) row.push({content:t.local||'',rowSpan:els.length,styles:{valign:'middle'}});
       const rr=realRate(e);
       row.push(e.heTs?hm(new Date(e.heTs+occ.intervalo*60000)):'',e.pf==null?'':String(e.pf),String(air),rr==null?'':fmtRate(rr),e.hs||'',(e.heTs&&e.hsTs)?fmtDur(e.hsTs-e.heTs):'');
       body.push(row); meta.push(e);
     });
   });
-  if(!body.length) body.push([{content:'Sem elementos registados.',colSpan:13,styles:{halign:'center',textColor:[90,103,120]}}]);
+  if(!body.length) body.push([{content:'Sem elementos registados.',colSpan:14,styles:{halign:'center',textColor:[90,103,120]}}]);
   const colorFor=(cls)=>({'p-ok':[[223,243,231],[28,124,71]],'p-warn':[[255,241,204],[169,111,0]],'p-bad':[[253,227,231],[200,16,46]]})[cls];
   doc.autoTable({
     startY:52, margin:{left:M,right:M,bottom:16},
-    head:[['Equipa','N.º','Nome','ARICA / garrafa','Pressão inicial (bar)','Hora entrada','Localização','Saída previsível','Pressão final (bar)','Ar consumido (bar)','Consumo (bar/min)','Hora saída','Tempo intervenção']],
+    head:[['Equipa','N.º','Nome','ARICA / garrafa','Pressão inicial (bar)','PNR (bar)','Hora entrada','Localização','Saída previsível','Pressão final (bar)','Ar consumido (bar)','Consumo (bar/min)','Hora saída','Tempo intervenção']],
     body, theme:'grid',
     styles:{font:'helvetica',fontSize:9,cellPadding:1.8,lineColor:[190,198,208],lineWidth:0.2,textColor:[23,32,43],valign:'middle'},
     headStyles:{fillColor:[46,59,76],textColor:255,fontStyle:'bold',fontSize:8.5,halign:'center',valign:'middle'},
-    columnStyles:{0:{cellWidth:17,halign:'center'},1:{cellWidth:10,halign:'center'},2:{cellWidth:38},3:{cellWidth:24,halign:'center'},4:{halign:'right',fontStyle:'bold'},5:{halign:'center'},7:{halign:'center'},8:{halign:'right',fontStyle:'bold'},9:{halign:'right'},10:{halign:'right'},11:{halign:'center'},12:{halign:'center'}},
+    columnStyles:{0:{cellWidth:16,halign:'center'},1:{cellWidth:9,halign:'center'},2:{cellWidth:34},3:{cellWidth:22,halign:'center'},4:{halign:'right',fontStyle:'bold'},5:{halign:'right',fontStyle:'bold',textColor:[154,101,0]},6:{halign:'center'},8:{halign:'center'},9:{halign:'right',fontStyle:'bold'},10:{halign:'right'},11:{halign:'right'},12:{halign:'center'},13:{halign:'center'}},
     didParseCell:d=>{
       if(d.section!=='body') return;
       const raw=d.row.raw; if(!raw||raw.length<5) return;
       const e=meta[d.row.index]; if(!e) return;
       const hdr=d.column.index;
       let cls=null;
-      if(hdr===4) cls=pClassIn(e.pi); else if(hdr===8) cls=pClassOut(e.pf);
+      if(hdr===4) cls=pClassIn(e.pi); else if(hdr===9) cls=pClassOut(e.pf);
       const c=cls&&colorFor(cls); if(c){ d.cell.styles.fillColor=c[0]; d.cell.styles.textColor=c[1] }
     }
   });
@@ -1019,7 +1145,7 @@ function ask(msg,okLabel){
     $('#aYes').onclick=()=>done(true); $('#aNo').onclick=()=>done(false);
   });
 }
-document.addEventListener('keydown',ev=>{if(ev.key==='Escape'){if($('#ovAsk').classList.contains('on'))$('#aNo').click();else {$('#ovHist').classList.remove('on');$('#ovNames').classList.remove('on');$('#ovSign').classList.remove('on');$('#ovSync').classList.remove('on');$('#ovOut').classList.remove('on');$('#ovStats').classList.remove('on')}}});
+document.addEventListener('keydown',ev=>{if(ev.key==='Escape'){if($('#ovAsk').classList.contains('on'))$('#aNo').click();else {$('#ovHist').classList.remove('on');$('#ovNames').classList.remove('on');$('#ovSign').classList.remove('on');$('#ovSync').classList.remove('on');$('#ovOut').classList.remove('on');$('#ovStats').classList.remove('on');$('#ovCalc').classList.remove('on')}}});
 
 /* ---------- Excel export ---------- */
 function loadXLSX(){
@@ -1034,10 +1160,10 @@ async function exportXlsx(){
     ['Controlo de Pressão ARICAs','','',d,'','ATENÇÃO: Não esquecer a reserva de 50 bar (± 10 min). NÃO DEIXAR ENTRAR COM PRESSÃO IGUAL OU INFERIOR A 160 bar.'],
     [],
     ['Designação da Ocorrência:','',occ.designacao,'','','Comandante das Operações:',occ.cos],
-    ['Tempo previsto (min):','',occ.intervalo],
-    ['Equipas','N.º','Nome','ARICA / garrafa','Pressão Inicial (bar)','Hora Entrada','Localização','Hora Saída Previsível','Pressão Final (bar)','Ar Consumido (bar)','Consumo (bar/min)','Hora Saída','Tempo Intervenção']
+    ['Tempo previsto (min):','',occ.intervalo,'','','Volume garrafa (L):',occ.volume||6,'PNR:','(Pressão inicial + 50) ÷ 2'],
+    ['Equipas','N.º','Nome','ARICA / garrafa','Pressão Inicial (bar)','PNR (bar)','Hora Entrada','Localização','Hora Saída Previsível','Pressão Final (bar)','Ar Consumido (bar)','Consumo (bar/min)','Hora Saída','Tempo Intervenção']
   ];
-  const merges=[{s:{r:0,c:5},e:{r:0,c:12}},{s:{r:2,c:0},e:{r:2,c:1}}];
+  const merges=[{s:{r:0,c:5},e:{r:0,c:13}},{s:{r:2,c:0},e:{r:2,c:1}}];
   occ.equipas.forEach(t=>{
     const els=t.elems.filter(hasData); if(!els.length) return;
     const start=rows.length;
@@ -1046,13 +1172,13 @@ async function exportXlsx(){
       const air=(e.pi!=null&&e.pf!=null)?e.pi-e.pf:'';
       const dur=(e.heTs&&e.hsTs)?(()=>{const m=Math.round((e.hsTs-e.heTs)/60000);return Math.floor(m/60)+':'+pad(m%60)})():'';
       const rr=realRate(e);
-      rows.push([i?'':t.nome,e.num===''?'':(isNaN(+e.num)?e.num:+e.num),e.nome,e.arica||'',e.pi==null?'':e.pi,e.he,i?'':t.local,prev,e.pf==null?'':e.pf,air,rr==null?'':Math.round(rr*10)/10,e.hs,dur]);
+      rows.push([i?'':t.nome,e.num===''?'':(isNaN(+e.num)?e.num:+e.num),e.nome,e.arica||'',e.pi==null?'':e.pi,e.pi==null?'':pnrOf(e),e.he,i?'':t.local,prev,e.pf==null?'':e.pf,air,rr==null?'':Math.round(rr*10)/10,e.hs,dur]);
     });
-    if(els.length>1){merges.push({s:{r:start,c:0},e:{r:start+els.length-1,c:0}});merges.push({s:{r:start,c:6},e:{r:start+els.length-1,c:6}})}
+    if(els.length>1){merges.push({s:{r:start,c:0},e:{r:start+els.length-1,c:0}});merges.push({s:{r:start,c:7},e:{r:start+els.length-1,c:7}})}
   });
   rows.push([]); rows.push(['Observações','',occ.obs||'']); rows.push([]); rows.push(['© Prazeres · nprazeres2@gmail.com']);
   const ws=XLSX.utils.aoa_to_sheet(rows); ws['!merges']=merges;
-  ws['!cols']=[{wch:10},{wch:6},{wch:24},{wch:16},{wch:14},{wch:12},{wch:18},{wch:18},{wch:14},{wch:14},{wch:16},{wch:11},{wch:16}];
+  ws['!cols']=[{wch:10},{wch:6},{wch:24},{wch:16},{wch:14},{wch:11},{wch:12},{wch:18},{wch:18},{wch:14},{wch:14},{wch:16},{wch:11},{wch:16}];
   const wb=XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb,ws,'Controlo');
   const out=XLSX.write(wb,{bookType:'xlsx',type:'array'});
   const name='Controlo_Pressao_ARICAs_'+(occ.designacao||'ocorrencia').replace(/[^\w\-À-ÿ ]+/g,'').trim().replace(/\s+/g,'_').slice(0,50)+'_'+(occ.data||todayISO())+'.xlsx';
@@ -1091,6 +1217,8 @@ function checkAlarm(now){
     if(!(e.he&&!e.hs)) return;
     const s=status(e,now); if(s.k==='idle'||s.k==='bad') return;
     const who=(e.nome||'N.º '+e.num)+(t.nome?' ('+t.nome+')':'');
+    const ri=returnInfo(e,now);
+    if(ri&&(ri.below||ri.rem<=0)&&!acked.has(e.id+':ret')&&!(s.est!=null&&s.est<=alarmAt())) list.push({key:e.id+':ret',lvl:2,txt:`${who}: atingiu o Ponto de Não Retorno (${fmtBar(ri.pn)} bar), iniciar retorno`});
     if(s.est!=null&&s.est<=alarmAt()&&!acked.has(e.id+':p80')) list.push({key:e.id+':p80',lvl:2,txt:`${who}: cerca de ${s.est} bar, mandar sair`});
     if(s.rem!=null&&s.rem<=0){ if(!acked.has(e.id+':over')) list.push({key:e.id+':over',lvl:2,txt:`${who}: excedeu o tempo previsto (${fmtCountdown(s.rem)})`}) }
     else if(s.rem!=null&&s.rem<=WARN_S&&!acked.has(e.id+':warn')) list.push({key:e.id+':warn',lvl:1,txt:`${who}: saída prevista em ${Math.max(1,Math.ceil(s.rem/60))} min`});
@@ -1109,6 +1237,57 @@ function checkAlarm(now){
 }
 $('#alarmOk').onclick=()=>{alarmList.forEach(x=>acked.add(x.key));saveAck();$('#alarm').classList.remove('on')};
 $('#bTest').onclick=()=>{unlockAudio();setTimeout(()=>beep('urgent'),50);toast('Se não ouviu o som, verifique o volume do dispositivo e o modo silêncio.','info')};
+
+/* ---------- calculadora de autonomia (Volume × Pressão ÷ Consumo − Reserva) ---------- */
+(function(){
+  const g=id=>document.getElementById(id);
+  const nv=(el,d)=>{const v=parseFloat(String(el.value).replace(',','.'));return isFinite(v)?v:d};
+  const f1=v=>{const r=Math.round(v*10)/10;return (Number.isInteger(r)?String(r):r.toFixed(1)).replace('.',',')};
+  const fL=v=>Math.round(v).toLocaleString('pt-PT');
+  const mmss=m=>{if(m<=0)return '0 min';const t=Math.round(m*60),mi=Math.floor(t/60),s=t%60;return s?mi+' min '+pad(s)+' s':mi+' min'};
+  const addM=(hhmm,m)=>{const [a,b]=hhmm.split(':').map(Number);const d=new Date(2000,0,1,a,b);d.setSeconds(d.getSeconds()+Math.round(m*60));return pad(d.getHours())+':'+pad(d.getMinutes())};
+  const E={vol:g('acVol'),pr:g('acPr'),prR:g('acPrR'),con:g('acCon'),res:g('acRes'),h:g('acH')};
+  function calc(){
+    const V=nv(E.vol,6),P=nv(E.pr,0),C=Math.max(1,nv(E.con,40)),R=Math.max(0,nv(E.res,10));
+    const ar=V*P,tot=ar/C,eff=tot-R,rL=R*C,rB=rL/V,e0=Math.max(0,eff);
+    g('acTot').textContent=f1(tot); g('acEff').textContent=f1(e0); g('acEffBox').classList.toggle('zero',eff<=0);
+    const wp=tot>0?Math.max(0,Math.min(100,eff/tot*100)):0;
+    g('acBW').style.flexBasis=wp+'%'; g('acBR').style.flexBasis=(100-wp)+'%';
+    g('acBW').textContent=wp>18?'Trabalho '+f1(e0)+' min':''; g('acBR').textContent=(100-wp)>18?'Reserva '+f1(Math.min(R,tot))+' min':'';
+    g('acBar').setAttribute('aria-label','Trabalho '+f1(e0)+' minutos, reserva '+f1(R)+' minutos');
+    g('acPrW').hidden=!(P>0&&P<=160);
+    const n=g('acNote');
+    if(eff<=0){n.className='oinfo bad';n.textContent='O ar não chega para cobrir a reserva de '+f1(R)+' min. Não entrar.'}
+    else{n.className='oinfo ok';n.textContent='Iniciar o retorno ao fim de '+mmss(eff)+', ou quando o manómetro chegar a cerca de '+fL(rB)+' bar, o que acontecer primeiro.'}
+    const hv=E.h.value; g('acTimes').hidden=!hv;
+    if(hv){g('acTRet').textContent=eff>0?addM(hv,eff):hv; g('acTLim').textContent=addM(hv,tot)}
+    g('acS1').innerHTML=`${f1(V)} × ${fL(P)} = <b>${fL(ar)} L</b>`;
+    g('acS2').innerHTML=`${fL(ar)} ÷ ${f1(C)} = <b>${f1(tot)} min</b>`;
+    g('acS3').innerHTML=`${f1(tot)} − ${f1(R)} = <b>${f1(e0)} min</b>`+(eff<=0?' (insuficiente)':'');
+    g('acS4a').innerHTML=`${f1(R)} × ${f1(C)} = <b>${fL(rL)} L</b>`;
+    g('acS4b').innerHTML=`${fL(rL)} ÷ ${f1(V)} = <b>${fL(rB)} bar</b>`;
+    const pn=(P+50)/2;
+    g('acPnr').textContent=f1(pn)+' bar'; g('acPnrF').textContent=`(${fL(P)} + 50) ÷ 2`;
+    g('acS5').innerHTML=`(${fL(P)} + 50) ÷ 2 = <b>${f1(pn)} bar</b>`;
+    g('acCap').textContent=`Garrafa de ${f1(V)} L, consumo de ${f1(C)} L/min e reserva de ${f1(R)} min.`;
+    const ps=[300,280,260,240,220,200,180,160]; if(P>0&&!ps.includes(P)){ps.push(P);ps.sort((a,b)=>b-a)}
+    g('acBody').innerHTML=ps.map(p=>{const a=V*p,t=a/C,e=t-R;return `<tr class="${p===P?'cur':''} ${p<=160?'low':''}"><td>${fL(p)} bar</td><td>${f1((p+50)/2)} bar</td><td>${fL(a)}</td><td>${f1(t)} min</td><td>${e>0?f1(e)+' min':'—'}</td></tr>`}).join('');
+    document.querySelectorAll('[data-acvol]').forEach(b=>b.setAttribute('aria-pressed',String(Math.abs(+b.dataset.acvol-V)<1e-9)));
+    document.querySelectorAll('[data-accon]').forEach(b=>b.setAttribute('aria-pressed',String(+b.dataset.accon===C)));
+    try{localStorage.setItem('arica.calc',JSON.stringify({c:E.con.value,r:E.res.value}))}catch(e){}
+  }
+  try{const s=JSON.parse(localStorage.getItem('arica.calc')||'null'); if(s){if(s.c)E.con.value=s.c; if(s.r)E.res.value=s.r}}catch(e){}
+  E.pr.addEventListener('input',()=>{const v=nv(E.pr,0); if(v>=100&&v<=320)E.prR.value=v; calc()});
+  E.prR.addEventListener('input',()=>{E.pr.value=E.prR.value; calc()});
+  [E.vol,E.con,E.res,E.h].forEach(i=>i.addEventListener('input',calc));
+  document.querySelectorAll('[data-acvol]').forEach(b=>b.addEventListener('click',()=>{E.vol.value=b.dataset.acvol;calc()}));
+  document.querySelectorAll('[data-accon]').forEach(b=>b.addEventListener('click',()=>{E.con.value=b.dataset.accon;calc()}));
+  g('acNow').addEventListener('click',()=>{E.h.value=hm(new Date());calc()});
+  g('acClr').addEventListener('click',()=>{E.h.value='';calc()});
+  g('bCalc').addEventListener('click',()=>{ if(occ&&occ.volume) E.vol.value=occ.volume; calc(); g('ovCalc').classList.add('on'); setTimeout(()=>E.pr.focus(),50) });
+  g('ovCalc').addEventListener('click',ev=>{if(ev.target===ev.currentTarget||ev.target.closest('[data-close]'))g('ovCalc').classList.remove('on')});
+  calc();
+})();
 
 /* ---------- estatísticas ---------- */
 function computeStats(){
